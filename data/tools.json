@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Clash Verge Rev",
+    "platform": "Windows / macOS / Linux",
+    "notes": "目前最主流的 Clash 图形客户端，订阅管理、规则、界面都成熟",
+    "url": "https://github.com/clash-verge-rev/clash-verge-rev"
+  },
+  {
+    "name": "v2rayN",
+    "platform": "Windows",
+    "notes": "老牌 Windows 客户端，支持 Xray / sing-box 多内核",
+    "url": "https://github.com/2dust/v2rayN"
+  },
+  {
+    "name": "FlClash",
+    "platform": "Windows / macOS / Linux / Android",
+    "notes": "全平台开源 Clash 客户端，界面现代",
+    "url": "https://github.com/chen08209/FlClash"
+  },
+  {
+    "name": "ClashMetaForAndroid",
+    "platform": "Android",
+    "notes": "MetaCubeX 官方安卓客户端",
+    "url": "https://github.com/MetaCubeX/ClashMetaForAndroid"
+  },
+  {
+    "name": "sing-box",
+    "platform": "全平台（内核）",
+    "notes": "新兴通用代理内核，大量新客户端基于它开发",
+    "url": "https://github.com/SagerNet/sing-box"
+  },
+  {
+    "name": "Hiddify",
+    "platform": "Windows / macOS / Linux / Android / iOS",
+    "notes": "对新手友好的一站式客户端，粘贴订阅即可用",
+    "url": "https://github.com/hiddify/hiddify-app"
+  },
+  {
+    "name": "Karing",
+    "platform": "全平台",
+    "notes": "sing-box 系多合一客户端，中文圈常用",
+    "url": "https://github.com/KaringX/karing"
+  },
+  {
+    "name": "Shadowrocket（小火箭）",
+    "platform": "iOS",
+    "notes": "iOS 端经典客户端，App Store 付费购买",
+    "url": "https://apps.apple.com/app/shadowrocket/id932747118"
+  }
+]

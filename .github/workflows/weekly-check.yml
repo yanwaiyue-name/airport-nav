@@ -1,0 +1,54 @@
+name: weekly-check
+
+on:
+  schedule:
+    # 每周六 03:00 UTC = 北京时间周六 11:00
+    - cron: '0 3 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: weekly-check
+  cancel-in-progress: false
+
+jobs:
+  check-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 链接体检（境外环境，无响应判失效）
+        shell: pwsh
+        run: ./scripts/check_links.ps1 -Runner github-actions
+
+      - name: 重新渲染 README 与网页数据
+        shell: pwsh
+        run: ./scripts/render.ps1
+
+      - name: 提交体检结果
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: 每周体检结果更新"
+          git push
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
