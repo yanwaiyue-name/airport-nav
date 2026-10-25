@@ -1,0 +1,58 @@
+[
+  {
+    "type": "评测仓库",
+    "name": "KaWaIDeSuNe/dijiajichang（低价机场推荐）",
+    "url": "https://github.com/KaWaIDeSuNe/dijiajichang",
+    "notes": "本项目主要数据源（2193 Star，2026 年活跃维护）：月 10 元以下低价机场逐家评测，含测速/解锁/线路分析专页。来源链接含邀请码，本项目已去除。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "评测仓库",
+    "name": "KaWaIDeSuNe/xingjiabijichang（性价比机场推荐）",
+    "url": "https://github.com/KaWaIDeSuNe/xingjiabijichang",
+    "notes": "同一作者的进阶版（1841 Star，2026 年活跃维护）：10-25 元/月档位，稳定性向机场，逐家有独立测速报告页。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "评测仓库",
+    "name": "kamibababa/cheapairport（低价机场推荐 2024）",
+    "url": "https://github.com/kamibababa/cheapairport",
+    "notes": "2024-11 评测（20 Star），部分信息可能过时，收录时逐条标注了时效风险。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "官方发布页",
+    "name": "一元机场官方地址发布仓库（yiyuan-jichang/dizhi）",
+    "url": "https://github.com/yiyuan-jichang/dizhi",
+    "notes": "机场域名被封后从官方发布页找新入口的典型范例（2971 Star）：整个仓库就是 3 行 README + 最新官网地址。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "状态监控",
+    "name": "节点在线状态实时监控页（dijiajichang 作者维护）",
+    "url": "https://proxy.20261917.xyz/probe/",
+    "notes": "每 10 分钟自动探测各家机场节点在线情况，买之前可以先看一眼实时状态。本项目暂未自建节点级探测，仅测官网入口。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "客户端下载指南",
+    "name": "机场客户端下载地址汇总（dijiajichang 作者维护）",
+    "url": "https://proxy.20261917.xyz/guide/clients-download.html",
+    "notes": "各平台客户端下载入口汇总页，可与本站「客户端速查」互补。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "教程笔记",
+    "name": "silascript/ITNotes · Ladder_Note",
+    "url": "https://github.com/silascript/ITNotes/blob/main/Ladder/Ladder_Note.md",
+    "notes": "个人翻墙笔记（2026-10 仍在更新）：机场域名失效后如何通过导航页找新入口等实战经验。",
+    "last_verified": "2026-10-25"
+  },
+  {
+    "type": "搜索入口",
+    "name": "GitHub 搜索：机场 推荐",
+    "url": "https://github.com/search?q=%E6%9C%BA%E5%9C%BA+%E6%8E%A8%E8%8D%90&type=repositories",
+    "notes": "想自己挖新机场/新评测仓库时从这里开始，按 Star 和最近更新排序筛。",
+    "last_verified": "2026-10-25"
+  }
+]

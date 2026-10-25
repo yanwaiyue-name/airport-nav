@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>airport-nav · 机场导航</title>
-<meta name="description" content="低价机场 / 客户端速查 / 新手避坑一站式导航，每周自动体检，只列还能打开的入口">
+<meta name="description" content="低价机场 / 性价比机场 / 客户端速查 / 新手避坑一站式导航，每周自动体检，只列还能打开的入口">
 <style>
   :root {
     --bg: #0f172a; --card: #1e293b; --border: #334155;
@@ -17,23 +17,26 @@
     font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     line-height: 1.6;
   }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
   header h1 { margin: 8px 0 4px; font-size: 28px; }
   header h1 span { color: var(--accent); }
   header p.sub { margin: 0 0 6px; color: var(--muted); }
   header p.updated { margin: 0; font-size: 13px; color: var(--muted); }
-  .controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; align-items: center; }
+  .controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 8px; align-items: center; }
+  .controls + .controls { margin-top: 0; }
   #q {
     flex: 1; min-width: 220px; padding: 10px 14px; border-radius: 10px;
     border: 1px solid var(--border); background: var(--card); color: var(--text);
     font-size: 15px; outline: none;
   }
   #q:focus { border-color: var(--accent); }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 16px; }
   .filters button {
-    padding: 8px 14px; margin-right: 6px; border-radius: 999px; cursor: pointer;
+    padding: 7px 14px; border-radius: 999px; cursor: pointer;
     border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 14px;
   }
   .filters button.active { background: var(--accent); border-color: var(--accent); color: #0b1220; font-weight: 600; }
+  .filters .sep { width: 14px; }
   section { margin-top: 28px; }
   section h2 { font-size: 20px; border-left: 4px solid var(--accent); padding-left: 10px; }
   .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
@@ -47,6 +50,8 @@
   .badge.ok { background: rgba(34,197,94,.15); color: var(--ok); }
   .badge.unknown { background: rgba(234,179,8,.15); color: var(--unknown); }
   .badge.dead { background: rgba(239,68,68,.15); color: var(--dead); }
+  .badge.tier { background: rgba(56,189,248,.12); color: var(--accent); }
+  .badge.cat { background: rgba(148,163,184,.15); color: var(--muted); }
   .notes { color: var(--muted); font-size: 13px; }
   .banner {
     margin-top: 14px; padding: 14px 16px; border: 1px dashed var(--border); border-radius: 12px;
@@ -58,8 +63,12 @@
     background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
   }
   .tool b a { color: var(--accent); text-decoration: none; }
-  .tool .plat { color: var(--muted); font-size: 12px; margin: 2px 0 6px; }
+  .tool .plat { color: var(--muted); font-size: 12px; margin: 4px 0 6px; }
   .tool .desc { font-size: 13px; }
+  .res { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .res b a { color: var(--accent); text-decoration: none; }
+  .res .type { margin-bottom: 4px; }
+  .res .desc { font-size: 13px; }
   ol.guide li { margin-bottom: 8px; }
   ol.guide { color: var(--text); }
   footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
@@ -72,27 +81,31 @@
 <div class="wrap">
   <header>
     <h1>airport<span>-nav</span> · 机场导航</h1>
-    <p class="sub">低价机场 / 客户端速查 / 新手避坑，每周自动体检，只列「现在还能打开」的入口。</p>
+    <p class="sub">低价机场 / 性价比机场 / 客户端速查 / 新手避坑，每周自动体检，只列「现在还能打开」的入口。</p>
     <p class="updated" id="updated"></p>
   </header>
 
   <div class="controls">
     <input id="q" type="search" placeholder="搜索机场名称 / 价格 / 备注…">
-    <div class="filters" id="filters">
-      <button data-f="all" class="active">全部</button>
-      <button data-f="ok">✅ 存活</button>
-      <button data-f="unknown">❓ 未验证</button>
-      <button data-f="dead">❌ 失效</button>
-    </div>
+  </div>
+  <div class="filters" id="tierFilters">
+    <button data-f="all" class="active">全部档位</button>
+    <button data-f="低价">低价（≤10元/月）</button>
+    <button data-f="性价比">性价比（10-25元/月）</button>
+    <span class="sep"></span>
+    <button data-s="all" class="active">全部状态</button>
+    <button data-s="ok">✅ 存活</button>
+    <button data-s="unknown">❓ 未验证</button>
+    <button data-s="dead">❌ 失效</button>
   </div>
 
   <section>
-    <h2>低价机场</h2>
+    <h2>机场速查</h2>
     <div class="tablewrap">
       <table>
         <thead>
           <tr>
-            <th>名称</th><th>线路</th><th>价格</th><th>流量</th>
+            <th>档位</th><th>名称</th><th>线路</th><th>价格</th><th>流量</th>
             <th>状态</th><th>备用</th><th>最后验证</th><th>备注</th>
           </tr>
         </thead>
@@ -102,12 +115,17 @@
   </section>
 
   <section>
-    <h2>客户端速查</h2>
+    <h2>客户端与工具</h2>
     <div class="grid" id="toolGrid"></div>
     <div class="banner">
       各客户端的<b>官方下载直链</b>（按电脑架构自动选版本，43 款 AI 与网络工具每周体检）见姊妹项目
       <a href="https://github.com/yanwaiyue-name/agent-download" target="_blank" rel="noopener">agent-download</a>。
     </div>
+  </section>
+
+  <section>
+    <h2>参考资源与延伸阅读</h2>
+    <div class="grid" id="resGrid"></div>
   </section>
 
   <section>
@@ -132,7 +150,8 @@
       GitHub 仓库：<a href="https://github.com/yanwaiyue-name/airport-nav" target="_blank" rel="noopener">yanwaiyue-name/airport-nav</a>
       ｜ 姊妹项目：<a href="https://github.com/yanwaiyue-name/agent-download" target="_blank" rel="noopener">agent-download</a>
       ｜ 数据来源：<a href="https://github.com/kamibababa/cheapairport" target="_blank" rel="noopener">cheapairport</a> /
-      <a href="https://github.com/KaWaIDeSuNe/dijiajichang" target="_blank" rel="noopener">dijiajichang</a>（邀请码已去除）
+      <a href="https://github.com/KaWaIDeSuNe/dijiajichang" target="_blank" rel="noopener">dijiajichang</a> /
+      <a href="https://github.com/KaWaIDeSuNe/xingjiabijichang" target="_blank" rel="noopener">xingjiabijichang</a>（邀请码已去除）
     </p>
   </footer>
 </div>
@@ -140,21 +159,16 @@
 <script src="data.js"></script>
 <script>
 (function () {
-  var data = window.NAV_DATA || { airports: [], tools: [], generated: '' };
+  var data = window.NAV_DATA || { airports: [], tools: [], resources: [], generated: '' };
   var body = document.getElementById('apBody');
   var q = document.getElementById('q');
-  var filter = 'all';
+  var tierFilter = 'all';
+  var statusFilter = 'all';
 
   document.getElementById('updated').textContent =
     '数据更新于 ' + (data.generated || '未知') +
     ' · 共 ' + data.airports.length + ' 家 · 最近体检存活 ' +
     data.airports.filter(function (a) { return a.status === 'ok'; }).length + ' 家';
-
-  function badge(a) {
-    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>';
-    if (a.status === 'dead') return '<span class="badge dead">❌失效</span>';
-    return '<span class="badge unknown">❓未验证</span>';
-  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -162,16 +176,23 @@
     });
   }
 
+  function badge(a) {
+    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>';
+    if (a.status === 'dead') return '<span class="badge dead">❌失效</span>';
+    return '<span class="badge unknown">❓未验证</span>';
+  }
+
   function render() {
     var kw = (q.value || '').trim().toLowerCase();
     var rows = data.airports.filter(function (a) {
-      if (filter !== 'all' && a.status !== filter) return false;
+      if (tierFilter !== 'all' && a.tier !== tierFilter) return false;
+      if (statusFilter !== 'all' && a.status !== statusFilter) return false;
       if (!kw) return true;
-      var hay = [a.name, a.line, a.price, a.traffic, a.notes, a.source].join(' ').toLowerCase();
+      var hay = [a.name, a.tier, a.line, a.price, a.traffic, a.notes, a.source].join(' ').toLowerCase();
       return hay.indexOf(kw) !== -1;
     });
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="8" class="empty">没有匹配的机场</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" class="empty">没有匹配的机场</td></tr>';
       return;
     }
     body.innerHTML = rows.map(function (a) {
@@ -182,6 +203,7 @@
       var chk = esc(a.last_checked || '—') +
         (a.checked_from ? ' <span class="notes">(' + esc(a.checked_from) + ')</span>' : '');
       return '<tr>' +
+        '<td><span class="badge tier">' + esc(a.tier || '—') + '</span></td>' +
         '<td><a href="' + esc(a.entry_url) + '" target="_blank" rel="noopener">' + esc(a.name) + '</a></td>' +
         '<td>' + esc(a.line || '—') + '</td>' +
         '<td>' + esc(a.price || '—') + '</td>' +
@@ -194,19 +216,32 @@
     }).join('');
   }
 
-  document.getElementById('filters').addEventListener('click', function (e) {
+  document.getElementById('tierFilters').addEventListener('click', function (e) {
     if (e.target.tagName !== 'BUTTON') return;
-    filter = e.target.getAttribute('data-f');
-    [].forEach.call(this.querySelectorAll('button'), function (b) { b.classList.remove('active'); });
+    if (e.target.hasAttribute('data-f')) {
+      tierFilter = e.target.getAttribute('data-f');
+      [].forEach.call(this.querySelectorAll('[data-f]'), function (b) { b.classList.remove('active'); });
+    } else {
+      statusFilter = e.target.getAttribute('data-s');
+      [].forEach.call(this.querySelectorAll('[data-s]'), function (b) { b.classList.remove('active'); });
+    }
     e.target.classList.add('active');
     render();
   });
   q.addEventListener('input', render);
 
   document.getElementById('toolGrid').innerHTML = (data.tools || []).map(function (t) {
-    return '<div class="tool"><b><a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.name) + '</a></b>' +
+    return '<div class="tool"><b><a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.name) + '</a></b> ' +
+      '<span class="badge cat">' + esc(t.category || '') + '</span>' +
       '<div class="plat">' + esc(t.platform || '') + '</div>' +
       '<div class="desc notes">' + esc(t.notes || '') + '</div></div>';
+  }).join('');
+
+  document.getElementById('resGrid').innerHTML = (data.resources || []).map(function (r) {
+    return '<div class="res"><b><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></b>' +
+      '<div class="type"><span class="badge cat">' + esc(r.type || '') + '</span>' +
+      '<span class="notes"> 验证于 ' + esc(r.last_verified || '') + '</span></div>' +
+      '<div class="desc notes">' + esc(r.notes || '') + '</div></div>';
   }).join('');
 
   render();

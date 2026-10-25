@@ -1,8 +1,10 @@
 [
     {
+        "tier":  "低价",
         "name":  "一元机场",
         "entry_url":  "https://xn--4gq62f.com",
         "backup_domains":  [
+                               "https://www.yiyuanjichang.com",
                                "https://github.com/yiyuan-jichang/dizhi"
                            ],
         "price":  "低价月付档（以官网为准）",
@@ -11,8 +13,8 @@
         "protocols":  [
                           "未知"
                       ],
-        "notes":  "GitHub 防失联地址发布页模式开创者（dizhi 仓库 2971 Star）。入口域名常换，当前会 302 跳转到新域名，体检自动跟随。备用入口=其官方地址发布仓库。",
-        "source":  "yiyuan-jichang/dizhi（官方）",
+        "notes":  "GitHub 防失联地址发布页模式开创者（dizhi 仓库 2971 Star）。入口域名常换，体检自动跟随跳转。两个备用入口均已实测可达。",
+        "source":  "yiyuan-jichang/dizhi（官方）、muyeqingfeng/VPN",
         "status":  "ok",
         "http_code":  403,
         "final_url":  "https://xn--1-q07a56pdss.org/",
@@ -20,6 +22,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "三毛机场",
         "entry_url":  "https://smjcdh.com",
         "backup_domains":  [
@@ -40,6 +43,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "NanoCloud",
         "entry_url":  "https://edu.360buyimg.men",
         "backup_domains":  [
@@ -61,6 +65,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "牛逼机场",
         "entry_url":  "https://666.66jc.top",
         "backup_domains":  [
@@ -81,6 +86,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "淘气兔",
         "entry_url":  "https://vip.taoqitu.pro",
         "backup_domains":  [
@@ -101,6 +107,28 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
+        "name":  "EF Network",
+        "entry_url":  "https://666.subef.top",
+        "backup_domains":  [
+
+                           ],
+        "price":  "6.9元/100G/月",
+        "traffic":  "100G/月",
+        "line":  "未知（含西班牙家宽节点）",
+        "protocols":  [
+                          "未知"
+                      ],
+        "notes":  "价格已下调，性价比尚可。注意：来源仓库已标注「目前端外大量节点无法使用」，务必先小周期试用。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "ok",
+        "http_code":  200,
+        "final_url":  "https://666.subef.top/",
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "低价",
         "name":  "一分机场",
         "entry_url":  "https://xn--4gqx1hgtfdmt.com",
         "backup_domains":  [
@@ -121,6 +149,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "吹雪云",
         "entry_url":  "https://xn--9kqs1lo79d.com",
         "backup_domains":  [
@@ -141,6 +170,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "良心云",
         "entry_url":  "https://xn--9kqz23b19z.com",
         "backup_domains":  [
@@ -161,6 +191,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "动力港",
         "entry_url":  "https://xn--tfrza853d44tvst.xyz",
         "backup_domains":  [
@@ -181,6 +212,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "山水云",
         "entry_url":  "https://sy.wgkzg.com",
         "backup_domains":  [
@@ -201,6 +233,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "秒联云",
         "entry_url":  "https://mly01.miaolianyun.my",
         "backup_domains":  [
@@ -221,6 +254,7 @@
         "checked_from":  "local"
     },
     {
+        "tier":  "低价",
         "name":  "星河云",
         "entry_url":  "https://svip.xingheyun.lol",
         "backup_domains":  [
@@ -237,6 +271,112 @@
         "status":  "ok",
         "http_code":  200,
         "final_url":  "https://app.zhizi8.com/",
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "低价",
+        "name":  "飞兔云",
+        "entry_url":  "https://xn--9kq10e0y7h.site",
+        "backup_domains":  [
+                               "https://xn--9kq10e0y7h.site"
+                           ],
+        "price":  "9.9元/118G/月",
+        "traffic":  "118G/月",
+        "line":  "中转（日本）+直连（内地节点）",
+        "protocols":  [
+                          "未知"
+                      ],
+        "notes":  "大型中转机场，80+ 节点，内地直连节点多，稳定性口碑不错；签到送流量。联通/移动友好，电信不友好。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "ok",
+        "http_code":  200,
+        "final_url":  "https://301.xn--h5qy75o.vip/",
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "性价比",
+        "name":  "红叶",
+        "entry_url":  "https://www.xn--qprx60h.site",
+        "backup_domains":  [
+
+                           ],
+        "price":  "10元/158G/月；另有 19.8元 IPLC 专线档",
+        "traffic":  "158G/月",
+        "line":  "中转（英国/日本，BGP.EIP 高速线路）",
+        "protocols":  [
+                          "VMess"
+                      ],
+        "notes":  "注册即送首月 50G 免费套餐，秒开 8K，支持流媒体/GPT 解锁，晚高峰不卡。注意：来源仓库提示近期更换了机场主，建议先月付观察。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "unknown",
+        "http_code":  0,
+        "final_url":  null,
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "性价比",
+        "name":  "青云梯",
+        "entry_url":  "https://a22.qytaff01.cc",
+        "backup_domains":  [
+                               "https://ivt01.qytaff.cc"
+                           ],
+        "price":  "25元/150G/月（年付有折扣，见官网）",
+        "traffic":  "150G/月",
+        "line":  "全 IPLC 专线",
+        "protocols":  [
+                          "未知"
+                      ],
+        "notes":  "运营五年的专线机场，原生 IP 解锁各大流媒体，三网优化，智能负载均衡（按本地网络分配入口）。三网推荐。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "ok",
+        "http_code":  200,
+        "final_url":  "https://a22.qytaff01.cc/verify?next=%2F",
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "性价比",
+        "name":  "KTM Cloud",
+        "entry_url":  "https://ktmcloud.link",
+        "backup_domains":  [
+                               "https://ktmcloud.vip",
+                               "https://ktmcloud.net"
+                           ],
+        "price":  "14元/2048G/月（约 0.007 元/GB）",
+        "traffic":  "2048G/月",
+        "line":  "中转",
+        "protocols":  [
+                          "未知"
+                      ],
+        "notes":  "中转机场里单位流量价格很便宜的档位，节点较多，速度中等；三个官网域名互为备用。适合大流量用户。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "unknown",
+        "http_code":  0,
+        "final_url":  null,
+        "last_checked":  "2026-10-25",
+        "checked_from":  "local"
+    },
+    {
+        "tier":  "性价比",
+        "name":  "WY Cloud",
+        "entry_url":  "https://www.z1z1.xyz",
+        "backup_domains":  [
+
+                           ],
+        "price":  "18元/100G/月",
+        "traffic":  "100G/月",
+        "line":  "腾讯云专线（专线）+ 海外中转",
+        "protocols":  [
+                          "未知"
+                      ],
+        "notes":  "120+ 节点，解锁全平台流媒体（Netflix/Disney+/Hulu/HBO Max 等），近期新增大量冷门节点和家宽节点，入口覆盖极广，几乎不会全线崩溃。三网推荐。",
+        "source":  "KaWaIDeSuNe/xingjiabijichang",
+        "status":  "ok",
+        "http_code":  200,
+        "final_url":  "https://www.z1z1.xyz/",
         "last_checked":  "2026-10-25",
         "checked_from":  "local"
     }

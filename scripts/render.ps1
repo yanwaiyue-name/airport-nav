@@ -6,6 +6,7 @@ airport-nav 渲染脚本：data/*.json -> README.md + docs/data.js
 
 说明：
   README.md 由本脚本生成，人工不要直接编辑 README，改 data/*.json 后重跑本脚本。
+  机场按 tier 分两张表（低价 / 性价比），工具按 category 汇总，参考资源单独成表。
 #>
 param()
 
@@ -13,11 +14,20 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
-$airports = Get-Content -LiteralPath (Join-Path $root 'data\airports.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-$tools    = Get-Content -LiteralPath (Join-Path $root 'data\tools.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$airports   = Get-Content -LiteralPath (Join-Path $root 'data\airports.json')   -Raw -Encoding UTF8 | ConvertFrom-Json
+$tools      = Get-Content -LiteralPath (Join-Path $root 'data\tools.json')      -Raw -Encoding UTF8 | ConvertFrom-Json
+$resources  = Get-Content -LiteralPath (Join-Path $root 'data\resources.json')  -Raw -Encoding UTF8 | ConvertFrom-Json
 
-$order = @{ ok = 0; unknown = 1; dead = 2 }
-$sorted = @($airports | Sort-Object { $order[[string]$_.status] })
+$tierOrder   = @{ '低价' = 0; '性价比' = 1 }
+$statusOrder = @{ ok = 0; unknown = 1; dead = 2 }
+
+$sorted = @($airports | Sort-Object -Property `
+    @{Expression={ $tierOrder[[string]$_.tier] }}, `
+    @{Expression={ $statusOrder[[string]$_.status] }})
+
+$low = @($sorted | Where-Object { $_.tier -eq '低价' })
+$mid = @($sorted | Where-Object { $_.tier -eq '性价比' })
+
 $today = if ($sorted.Count -gt 0 -and $sorted[0].last_checked) { [string]$sorted[0].last_checked } else { '未知' }
 $okCount = @($sorted | Where-Object { $_.status -eq 'ok' }).Count
 
@@ -32,27 +42,37 @@ function Clean([string]$s) {
     return ($s -replace '\|', '／')
 }
 
-$apRows = foreach ($a in $sorted) {
-    $bk = @($a.backup_domains | Where-Object { $_ })
-    $bkTxt = if ($bk.Count -gt 0) { "[备用×$($bk.Count)]($($bk[0]))" } else { '—' }
-    $st = Badge ([string]$a.status) $a.http_code
-    $chk = "{0}({1})" -f $a.last_checked, $a.checked_from
-    "| [{0}]({1}) | {2} | {3} | {4} | {5} | {6} | {7} | {8} |" -f `
-        $a.name, $a.entry_url, (Clean $a.line), (Clean $a.price), (Clean $a.traffic), $st, $bkTxt, $chk, (Clean $a.notes)
+function Make-ApRows($list) {
+    $rows = foreach ($a in $list) {
+        $bk = @(@($a.backup_domains) | Where-Object { $_ })
+        $bkTxt = if ($bk.Count -gt 0) { "[备用×$($bk.Count)]($($bk[0]))" } else { '—' }
+        $st = Badge ([string]$a.status) $a.http_code
+        $chk = "{0}({1})" -f $a.last_checked, $a.checked_from
+        "| [{0}]({1}) | {2} | {3} | {4} | {5} | {6} | {7} | {8} |" -f `
+            $a.name, $a.entry_url, (Clean $a.line), (Clean $a.price), (Clean $a.traffic), $st, $bkTxt, $chk, (Clean $a.notes)
+    }
+    return ($rows -join "`n")
 }
-$apTable = $apRows -join "`n"
+
+$lowTable = Make-ApRows $low
+$midTable = Make-ApRows $mid
 
 $toolRows = foreach ($t in $tools) {
-    "| [{0}]({1}) | {2} | {3} |" -f $t.name, $t.url, $t.platform, (Clean $t.notes)
+    "| [{0}]({1}) | {2} | {3} | {4} |" -f $t.name, $t.url, (Clean $t.category), $t.platform, (Clean $t.notes)
 }
 $toolTable = $toolRows -join "`n"
+
+$resRows = foreach ($r in $resources) {
+    "| [{0}]({1}) | {2} | {3} |" -f (Clean $r.name), $r.url, (Clean $r.type), (Clean $r.notes)
+}
+$resTable = $resRows -join "`n"
 
 $template = @'
 # airport-nav · 机场导航
 
 > 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，只列"现在还能打开"的入口。**
 
-共收录 **{COUNT}** 家低价机场，最近一次体检 **{OKCOUNT}** 家存活（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
+共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家存活（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
 
 ## 怎么用（3 步）
 
@@ -60,23 +80,37 @@ $template = @'
 2. 点「名称」进官网，**先买最小周期**（试用/月付）验证速度和稳定性，满意再考虑长周期；
 3. 担心域名被封？点「备用」列——多数机场有官方地址发布页或备用域名。
 
-## 低价机场速查表
+## 低价机场速查表（月付 ≤10 元）
 
 | 名称 | 线路 | 价格 | 流量 | 状态 | 备用 | 最后验证 | 备注 |
 |---|---|---|---|---|---|---|---|
-{APTABLE}
+{LOWTABLE}
+
+## 性价比机场（月付 10-25 元，稳定性向）
+
+| 名称 | 线路 | 价格 | 流量 | 状态 | 备用 | 最后验证 | 备注 |
+|---|---|---|---|---|---|---|---|
+{MIDTABLE}
 
 > **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = GitHub Actions 检测无响应。检测只代表**入口可达**，不代表速度与实际可用性。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
 >
-> **数据来源**：公开评测仓库（[kamibababa/cheapairport](https://github.com/kamibababa/cheapairport)、[KaWaIDeSuNe/dijiajichang](https://github.com/KaWaIDeSuNe/dijiajichang) 等）与机场官方发布页。来源链接中的邀请码已全部去除，本项目与所列机场无利益关系。
+> **数据来源**：公开评测仓库（[kamibababa/cheapairport](https://github.com/kamibababa/cheapairport)、[KaWaIDeSuNe/dijiajichang](https://github.com/KaWaIDeSuNe/dijiajichang)、[KaWaIDeSuNe/xingjiabijichang](https://github.com/KaWaIDeSuNe/xingjiabijichang) 等）与机场官方发布页。来源链接中的邀请码已全部去除，本项目与所列机场无利益关系。
 
-## 客户端速查
+## 客户端与工具速查
 
-| 客户端 | 平台 | 说明 |
-|---|---|---|
+| 名称 | 类别 | 平台 | 说明 |
+|---|---|---|---|
 {TOOLTABLE}
 
 > 各客户端的**官方下载直链**（按电脑架构自动选版本，43 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
+
+## 参考资源与延伸阅读
+
+| 资源 | 类型 | 说明 |
+|---|---|---|
+{RESTABLE}
+
+> 收录标准：仓库经 GitHub API 核实存在且记录 Star/维护状态，网页经 HTTP 实测可达，验证日期见数据文件。
 
 ## 新手避坑指南
 
@@ -101,7 +135,7 @@ $template = @'
 
 1. Fork 后修改 [data/airports.json](data/airports.json)（新增/修正机场信息），提交 PR；
 2. 合并后每周六自动体检，也可在 Actions → weekly-check → Run workflow 手动触发；
-3. 字段说明：`name` 名称；`entry_url` 官网入口；`backup_domains` 备用入口（地址发布页也算）；`price` 价格档位；`traffic` 流量；`line` 线路类型（直连/中转）；`protocols` 协议；`notes` 备注（写明来源与风险）；`source` 信息来源仓库；`status`/`http_code`/`last_checked`/`checked_from`/`final_url` 由体检脚本维护，人工不用填。
+3. 字段说明：`tier` 档位（低价/性价比，按月付价格划分）；`name` 名称；`entry_url` 官网入口；`backup_domains` 备用入口（地址发布页也算）；`price` 价格档位；`traffic` 流量；`line` 线路类型（直连/中转/专线）；`protocols` 协议；`notes` 备注（写明来源与风险）；`source` 信息来源仓库；`status`/`http_code`/`last_checked`/`checked_from`/`final_url` 由体检脚本维护，人工不用填。
 
 ## 免责声明
 
@@ -110,9 +144,9 @@ $template = @'
 - 请遵守你所在地区的法律法规。
 '@
 
-$md = $template.Replace('{COUNT}', "$($sorted.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{TODAY}', $today).Replace('{APTABLE}', $apTable).Replace('{TOOLTABLE}', $toolTable)
+$md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
 [System.IO.File]::WriteAllText((Join-Path $root 'README.md'), $md, $utf8)
 
-$nav = @{ generated = $today; airports = $sorted; tools = $tools }
+$nav = @{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
 [System.IO.File]::WriteAllText((Join-Path $root 'docs\data.js'), ('window.NAV_DATA = ' + ($nav | ConvertTo-Json -Depth 10) + ';'), $utf8)
-Write-Host ("README.md 与 docs/data.js 已生成：{0} 家机场，{1} 家存活（{2}）" -f $sorted.Count, $okCount, $today)
+Write-Host ("README.md 与 docs/data.js 已生成：低价 {0} 家 + 性价比 {1} 家，{2} 家存活（{3}）" -f $low.Count, $mid.Count, $okCount, $today)
