@@ -20,7 +20,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
-$dataPath = Join-Path $root 'data\airports.json'
+$dataPath = Join-Path $root 'data/airports.json'
 $today = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd')
 
 # 本机默认清空代理环境变量：本机代理可能失效，会把活站全部误判成无响应
@@ -35,9 +35,27 @@ if (-not $KeepProxy) {
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $airports = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
+function Ensure-Property($obj, $name, $default) {
+    if (-not ($obj.PSObject.Properties.Name -contains $name)) {
+        $obj | Add-Member -NotePropertyName $name -NotePropertyValue $default
+    }
+}
+
+foreach ($a in $airports) {
+    Ensure-Property $a 'status'      'unknown'
+    Ensure-Property $a 'http_code'   0
+    Ensure-Property $a 'final_url'   $null
+    Ensure-Property $a 'last_checked' $today
+    Ensure-Property $a 'checked_from' $Runner
+
 function Get-FinalUri($resp) {
-    try { return $resp.ResponseUri.AbsoluteUri } catch {}
-    try { return $resp.RequestMessage.RequestUri.AbsoluteUri } catch {}
+    if ($null -eq $resp) { return $null }
+    if ($null -ne $resp.RequestMessage -and $null -ne $resp.RequestMessage.RequestUri) {
+        return $resp.RequestMessage.RequestUri.AbsoluteUri
+    }
+    if ($null -ne $resp.ResponseUri) {
+        return $resp.ResponseUri.AbsoluteUri
+    }
     return $null
 }
 

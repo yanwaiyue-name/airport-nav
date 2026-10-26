@@ -14,19 +14,25 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
-$airports   = Get-Content -LiteralPath (Join-Path $root 'data\airports.json')   -Raw -Encoding UTF8 | ConvertFrom-Json
-$tools      = Get-Content -LiteralPath (Join-Path $root 'data\tools.json')      -Raw -Encoding UTF8 | ConvertFrom-Json
-$resources  = Get-Content -LiteralPath (Join-Path $root 'data\resources.json')  -Raw -Encoding UTF8 | ConvertFrom-Json
+$airports   = Get-Content -LiteralPath (Join-Path $root 'data/airports.json')   -Raw -Encoding UTF8 | ConvertFrom-Json
+$tools      = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/tools.json')      -Raw -Encoding UTF8 | ConvertFrom-Json)
+$resources  = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/resources.json')  -Raw -Encoding UTF8 | ConvertFrom-Json)
 
 $tierOrder   = @{ '低价' = 0; '性价比' = 1 }
 $statusOrder = @{ ok = 0; unknown = 1; dead = 2 }
 
 $sorted = @($airports | Sort-Object -Property `
     @{Expression={ $tierOrder[[string]$_.tier] }}, `
-    @{Expression={ $statusOrder[[string]$_.status] }})
+    @{Expression={ $statusOrder[[string]$_.status] }}, `
+    @{Expression={ [string]$_.name }})
 
 $low = @($sorted | Where-Object { $_.tier -eq '低价' })
 $mid = @($sorted | Where-Object { $_.tier -eq '性价比' })
+
+$unmatched = @($sorted | Where-Object { $_.tier -ne '低价' -and $_.tier -ne '性价比' })
+if ($unmatched.Count -gt 0) {
+    Write-Warning ("有 {0} 家机场的 tier 不是 '低价' 或 '性价比'，不会出现在 README 表格中：{1}" -f $unmatched.Count, (($unmatched | ForEach-Object { $_.name }) -join ', '))
+}
 
 $today = if ($sorted.Count -gt 0 -and $sorted[0].last_checked) { [string]$sorted[0].last_checked } else { '未知' }
 $okCount = @($sorted | Where-Object { $_.status -eq 'ok' }).Count
@@ -148,5 +154,5 @@ $md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$(
 [System.IO.File]::WriteAllText((Join-Path $root 'README.md'), $md, $utf8)
 
 $nav = @{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
-[System.IO.File]::WriteAllText((Join-Path $root 'docs\data.js'), ('window.NAV_DATA = ' + ($nav | ConvertTo-Json -Depth 10) + ';'), $utf8)
+[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), ('window.NAV_DATA = ' + ($nav | ConvertTo-Json -Depth 10) + ';'), $utf8)
 Write-Host ("README.md 与 docs/data.js 已生成：低价 {0} 家 + 性价比 {1} 家，{2} 家存活（{3}）" -f $low.Count, $mid.Count, $okCount, $today)
