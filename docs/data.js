@@ -144,6 +144,25 @@ window.NAV_DATA = {
     },
     {
       "tier": "低价",
+      "name": "星河云",
+      "entry_url": "https://svip.xingheyun.lol",
+      "backup_domains": [],
+      "price": "1元/16G/月",
+      "traffic": "16G/月",
+      "line": "中转",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "小流量低价档，各方面尚可（来源仓库评价），适合轻度使用。",
+      "source": "kamibababa/cheapairport",
+      "status": "ok",
+      "http_code": 200,
+      "final_url": "https://app.zhizi8.com/",
+      "last_checked": "2026-10-26",
+      "checked_from": "github-actions"
+    },
+    {
+      "tier": "低价",
       "name": "淘气兔",
       "entry_url": "https://vip.taoqitu.pro",
       "backup_domains": [],
@@ -251,25 +270,6 @@ window.NAV_DATA = {
         "未知"
       ],
       "notes": "50+ 地区节点，流媒体/ChatGPT 解锁好，晚高峰速度一般。注意：信息来自 2024-11 评测，可能过时。",
-      "source": "kamibababa/cheapairport",
-      "status": "dead",
-      "http_code": 0,
-      "final_url": null,
-      "last_checked": "2026-10-26",
-      "checked_from": "github-actions"
-    },
-    {
-      "tier": "低价",
-      "name": "星河云",
-      "entry_url": "https://svip.xingheyun.lol",
-      "backup_domains": [],
-      "price": "1元/16G/月",
-      "traffic": "16G/月",
-      "line": "中转",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "小流量低价档，各方面尚可（来源仓库评价），适合轻度使用。",
       "source": "kamibababa/cheapairport",
       "status": "dead",
       "http_code": 0,
