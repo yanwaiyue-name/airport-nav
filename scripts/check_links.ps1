@@ -14,9 +14,12 @@ airport-nav 每周链接体检
   4. 只要服务器有任何 HTTP 响应（含 301/302/403 人机验证）即视为入口存活；
   5. 单个站点连续探测整轮失败时再重试一轮（-Retry），仍失败才继续判定流程。
 
-判死规则（两振出局）：
+判死规则（两振出局 + 第三方复核）：
   CI 环境下单次无响应不会直接判死 —— 上轮 ok 的降为 unknown，上轮已是 unknown/dead 的才判 dead。
   这样一次网络抖动不会再让活站顶着「❌失效」牌子过一周。
+  加 -SecondOpinion 时，在「准备判 dead」那一刻再向 check-host.net 的多国节点复核一次：
+  只要有任一境外节点能拿到 HTTP 响应，本轮仍记 unknown。避免「只有 GitHub 美国 runner 访问不到」的误杀。
+  第三方服务本身不可用时返回「无意见」，按原规则处理，不会因此放行死站。
 
 注意：函数必须定义在顶层。把 function 嵌进 foreach 块会造成脚本解析失败（Missing closing brace）。
 #>
@@ -28,6 +31,8 @@ param(
     [int]$Retry = 2,
     [int]$MaxBackup = 5,
     [switch]$KeepProxy,
+    [switch]$SecondOpinion,
+    [int]$OpinionNodes = 3,
     [string]$DataPath
 )
 
@@ -110,6 +115,50 @@ function Test-Url {
     return $last
 }
 
+function Get-SecondOpinion {
+    # 只在「准备判 dead」时调用，用 check-host.net 的多个境外节点交叉验证。
+    # 单一 GitHub runner（美国机房）访问不到 ≠ 站点已死：可能是该地区线路问题，或站点只对某些地区放行。
+    # 返回 $true = 有节点能看到；$false = 所有节点都失败；$null = 第三方服务不可用/没等到结果（视为无意见）
+    param([string]$Url, [int]$Nodes = 3, [int]$PollTimes = 6, [int]$PollSeconds = 4)
+
+    $apiBase = 'https://check-host.net'
+    $escaped = [uri]::EscapeDataString($Url)
+    $submitUrl = '{0}/check-http?host={1}&max_nodes={2}' -f $apiBase, $escaped, $Nodes
+
+    $client = $null
+    try {
+        Add-Type -AssemblyName System.Net.Http -ErrorAction SilentlyContinue
+        $client = [System.Net.Http.HttpClient]::new()
+        $client.Timeout = [TimeSpan]::FromSeconds(20)
+        [void]$client.DefaultRequestHeaders.TryAddWithoutValidation('Accept', 'application/json')
+
+        $body = $client.GetStringAsync($submitUrl).GetAwaiter().GetResult()
+        $submit = $body | ConvertFrom-Json
+        if (-not $submit.request_id) { return $null }
+
+        for ($i = 1; $i -le $PollTimes; $i++) {
+            Start-Sleep -Seconds $PollSeconds
+            $pollBody = $client.GetStringAsync(('{0}/check-result/{1}' -f $apiBase, $submit.request_id)).GetAwaiter().GetResult()
+            $poll = $pollBody | ConvertFrom-Json
+            $pending = $false
+            foreach ($p in $poll.PSObject.Properties) {
+                if ($null -eq $p.Value) { $pending = $true; continue }
+                foreach ($item in @($p.Value)) {
+                    if ($null -ne $item -and [int]$item[0] -eq 1) { return $true }
+                }
+            }
+            if (-not $pending) { return $false }
+        }
+        return $null
+    }
+    catch {
+        return $null
+    }
+    finally {
+        if ($client) { $client.Dispose() }
+    }
+}
+
 # ---------------- 主流程 ----------------
 
 # 先落到变量再套 @()：PS 5.1 的 ConvertFrom-Json 不展开顶层数组，写成 @(管道) 会得到「数组套数组」的一层壳，
@@ -163,7 +212,21 @@ try {
             if ($Runner -eq 'github-actions') {
                 # 两振出局：上轮还活着的先降为 unknown，连续两轮都无响应才判 dead
                 if ($prevStatus -eq 'ok') { $a.status = 'unknown' }
-                elseif ($prevStatus -in @('unknown', 'dead')) { $a.status = 'dead' }
+                elseif ($prevStatus -in @('unknown', 'dead')) {
+                    $verdict = 'dead'
+                    if ($SecondOpinion) {
+                        Write-Host ("{0}: 本机两轮都没响应，向多国节点复核……" -f $a.name)
+                        $seen = Get-SecondOpinion -Url ([string]$a.entry_url) -Nodes $OpinionNodes
+                        if ($seen -eq $true) {
+                            $verdict = 'unknown'
+                            Write-Host ("{0}: 第三方节点能看到 {1}，本轮记 unknown，暂不判死" -f $a.name, $a.entry_url)
+                        }
+                        elseif ($null -eq $seen) {
+                            Write-Host ("{0}: 第三方复核没有结论（服务不可用），按原规则处理" -f $a.name)
+                        }
+                    }
+                    $a.status = $verdict
+                }
                 else { $a.status = 'unknown' }
             }
             elseif ($a.status -ne 'dead') { $a.status = 'unknown' }

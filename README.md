@@ -33,7 +33,7 @@
 
 | 名称 | 线路 | 价格 | 流量 | 状态 | 备用 | 最后验证 | 备注 |
 |---|---|---|---|---|---|---|---|
-| [KTM Cloud](https://ktmcloud.vip) | 中转 | 14元/2048G/月（约 0.007 元/GB） | 2048G/月 | ✅存活(403) | [备用×2](https://ktmcloud.vip) | 2026-10-26(github-actions) | 中转机场里单位流量价格很便宜的档位，节点较多，速度中等；三个官网域名互为备用。适合大流量用户。 |
+| [KTM Cloud](https://ktmcloud.vip) | 中转 | 14元/2048G/月（约 0.007 元/GB） | 2048G/月 | ✅存活(403) | [备用×1](https://ktmcloud.net) | 2026-10-26(github-actions) | 中转机场里单位流量价格很便宜的档位，节点较多，速度中等；三个官网域名互为备用。适合大流量用户。 |
 | [WY Cloud](https://www.z1z1.xyz) | 腾讯云专线（专线）+ 海外中转 | 18元/100G/月 | 100G/月 | ✅存活(200) | — | 2026-10-26(github-actions) | 120+ 节点，解锁全平台流媒体（Netflix/Disney+/Hulu/HBO Max 等），近期新增大量冷门节点和家宽节点，入口覆盖极广，几乎不会全线崩溃。三网推荐。 |
 | [红叶](https://www.xn--qprx60h.site) | 中转（英国/日本，BGP.EIP 高速线路） | 10元/158G/月；另有 19.8元 IPLC 专线档 | 158G/月 | ✅存活(200) | — | 2026-10-26(github-actions) | 注册即送首月 50G 免费套餐，秒开 8K，支持流媒体/GPT 解锁，晚高峰不卡。注意：来源仓库提示近期更换了机场主，建议先月付观察。 |
 | [青云梯](https://a22.qytaff01.cc) | 全 IPLC 专线 | 25元/150G/月（年付有折扣，见官网） | 150G/月 | ✅存活(200) | [备用×1](https://ivt01.qytaff.cc) | 2026-10-26(github-actions) | 运营五年的专线机场，原生 IP 解锁各大流媒体，三网优化，智能负载均衡（按本地网络分配入口）。三网推荐。 |
@@ -92,14 +92,16 @@
 - 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口（HEAD 优先，站点不支持 HEAD 时退回 GET，带浏览器 UA）；
 - 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口，**旧入口降级为备用域名保留**（不因为一次临时故障就从项目里消失）；
 - 判死采用**两振出局**：单轮无响应只降为❓未验证，连续两轮都无响应才标❌失效（本地预检永不判死）；
+- 判死前再向 [check-host.net](https://check-host.net) 的多个境外节点复核一次：只要有任一节点能看到该入口，本轮仍记❓未验证——**只有美国 runner 访问不到，不代表站点已死**；第三方服务不可用时不表态，按原规则处理；
 - 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)；
 - 网页数据的引用带内容哈希版本号（`data.js?v=xxxxxxxx`），数据一变 URL 就变，避免 Pages 边缘缓存让你看到旧数据。
 
 ## 参与贡献
 
 1. Fork 后修改 [data/airports.json](data/airports.json)（新增/修正机场信息），提交 PR；
-2. 合并后每周六自动体检，也可在 Actions → weekly-check → Run workflow 手动触发；
-3. 字段说明：`tier` 档位（低价/性价比，按月付价格划分）；`name` 名称；`entry_url` 官网入口；`backup_domains` 备用入口（地址发布页也算）；`price` 价格档位；`traffic` 流量；`line` 线路类型（直连/中转/专线）；`protocols` 协议；`notes` 备注（写明来源与风险）；`source` 信息来源仓库；`status`/`http_code`/`last_checked`/`checked_from`/`final_url` 由体检脚本维护，人工不用填。
+2. 提交前先本地预检：Windows 双击仓库根目录的 `preflight.cmd`，或直接跑 `./scripts/validate.ps1`——它会检查必填字段、URL 格式、名称重复、日期格式和脚本语法，有问题直接告诉你是第几条哪个字段；
+3. 合并后每周六自动体检，也可在 Actions → weekly-check → Run workflow 手动触发；
+4. 字段说明：`tier` 档位（低价/性价比，按月付价格划分）；`name` 名称；`entry_url` 官网入口；`backup_domains` 备用入口（地址发布页也算）；`price` 价格档位；`traffic` 流量；`line` 线路类型（直连/中转/专线）；`protocols` 协议；`notes` 备注（写明来源与风险）；`source` 信息来源仓库；`status`/`http_code`/`last_checked`/`checked_from`/`final_url` 由体检脚本维护，人工不用填。
 
 ## 免责声明
 

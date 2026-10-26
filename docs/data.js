@@ -282,7 +282,6 @@ window.NAV_DATA = {
       "name": "KTM Cloud",
       "entry_url": "https://ktmcloud.vip",
       "backup_domains": [
-        "https://ktmcloud.vip",
         "https://ktmcloud.net"
       ],
       "price": "14元/2048G/月（约 0.007 元/GB）",

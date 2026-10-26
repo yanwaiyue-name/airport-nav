@@ -32,9 +32,13 @@ jobs:
           $PSVersionTable | Out-String | Write-Host
           "pwsh $($PSVersionTable.PSVersion)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
+      - name: 数据与脚本预检
+        shell: pwsh
+        run: ./scripts/validate.ps1
+
       - name: 链接体检（境外环境，无响应判失效）
         shell: pwsh
-        run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12
+        run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12 -SecondOpinion
 
       - name: 重新渲染 README 与网页数据
         shell: pwsh
