@@ -38,7 +38,7 @@
 | [红叶](https://www.xn--qprx60h.site) | 中转（英国/日本，BGP.EIP 高速线路） | 10元/158G/月；另有 19.8元 IPLC 专线档 | 158G/月 | ✅存活(200) | — | 2026-10-26(github-actions) | 注册即送首月 50G 免费套餐，秒开 8K，支持流媒体/GPT 解锁，晚高峰不卡。注意：来源仓库提示近期更换了机场主，建议先月付观察。 |
 | [青云梯](https://a22.qytaff01.cc) | 全 IPLC 专线 | 25元/150G/月（年付有折扣，见官网） | 150G/月 | ✅存活(200) | [备用×1](https://ivt01.qytaff.cc) | 2026-10-26(github-actions) | 运营五年的专线机场，原生 IP 解锁各大流媒体，三网优化，智能负载均衡（按本地网络分配入口）。三网推荐。 |
 
-> **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = GitHub Actions 检测无响应。检测只代表**入口可达**，不代表速度与实际可用性。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
+> **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = 连续两轮 GitHub Actions 检测都无响应（单轮失败先降为❓，避免一次抖动误判死链）。检测只代表**入口可达**，不代表速度与实际可用性。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
 >
 > **数据来源**：公开评测仓库（[kamibababa/cheapairport](https://github.com/kamibababa/cheapairport)、[KaWaIDeSuNe/dijiajichang](https://github.com/KaWaIDeSuNe/dijiajichang)、[KaWaIDeSuNe/xingjiabijichang](https://github.com/KaWaIDeSuNe/xingjiabijichang) 等）与机场官方发布页。来源链接中的邀请码已全部去除，本项目与所列机场无利益关系。
 
@@ -89,8 +89,9 @@
 
 ## 自动体检是怎么做的
 
-- 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口；
-- 入口打不开时自动尝试备用域名，备用域名可用则自动升级为新入口；全部无响应才标记失效（仅 CI 环境判死，本地预检不判死）；
+- 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口（HEAD 优先，站点不支持 HEAD 时退回 GET，带浏览器 UA）；
+- 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口；
+- 判死采用**两振出局**：单轮无响应只降为❓未验证，连续两轮都无响应才标❌失效（本地预检永不判死）；
 - 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)。
 
 ## 参与贡献

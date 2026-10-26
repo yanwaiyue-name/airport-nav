@@ -11,7 +11,12 @@ airport-nav 每周链接体检
   1. 逐个请求每个机场的 entry_url 和 backup_domains（HEAD 优先，不支持 HEAD 时退回 GET）；
   2. 入口无响应时自动尝试备用域名；备用域名可用则自动升级为入口；
   3. 结果（status / http_code / final_url / last_checked / checked_from）写回数据文件；
-  4. 只要服务器有任何 HTTP 响应（含 301/302/403 人机验证）即视为入口存活。
+  4. 只要服务器有任何 HTTP 响应（含 301/302/403 人机验证）即视为入口存活；
+  5. 单个站点连续探测整轮失败时再重试一轮（-Retry），仍失败才继续判定流程。
+
+判死规则（两振出局）：
+  CI 环境下单次无响应不会直接判死 —— 上轮 ok 的降为 unknown，上轮已是 unknown/dead 的才判 dead。
+  这样一次网络抖动不会再让活站顶着「❌失效」牌子过一周。
 
 注意：函数必须定义在顶层。把 function 嵌进 foreach 块会造成脚本解析失败（Missing closing brace）。
 #>
@@ -20,6 +25,7 @@ param(
     [ValidateSet('local', 'github-actions')]
     [string]$Runner = 'local',
     [int]$TimeoutSec = 10,
+    [int]$Retry = 2,
     [switch]$KeepProxy,
     [string]$DataPath
 )
@@ -105,15 +111,22 @@ function Invoke-Probe {
 }
 
 function Test-Url {
-    param($Client, [string]$Url)
+    param($Client, [string]$Url, [int]$Attempts = 2)
 
-    # 先 HEAD 省流量；不支持 HEAD（400/405/501）或直接连不上时，用 GET 复核，避免把活站误判成死链
-    $head = Invoke-Probe -Client $Client -Url $Url -Method 'Head'
-    if ($head.Code -gt 0 -and @(400, 405, 501) -notcontains $head.Code) { return $head }
+    # 先 HEAD 省流量；不支持 HEAD（400/405/501）或直接连不上时，用 GET 复核，避免把活站误判成死链。
+    # 整轮都连不上时再重试一轮：单次 DNS/握手抖动不该让一个活站被判死。
+    $last = @{ Code = 0; Final = $null; Error = $null }
+    for ($i = 1; $i -le [Math]::Max(1, $Attempts); $i++) {
+        $head = Invoke-Probe -Client $Client -Url $Url -Method 'Head'
+        if ($head.Code -gt 0 -and @(400, 405, 501) -notcontains $head.Code) { return $head }
 
-    $get = Invoke-Probe -Client $Client -Url $Url -Method 'Get'
-    if ($get.Code -gt 0) { return $get }
-    return $head
+        $get = Invoke-Probe -Client $Client -Url $Url -Method 'Get'
+        if ($get.Code -gt 0) { return $get }
+
+        $last = $get
+        if ($i -lt $Attempts) { Start-Sleep -Seconds 3 }
+    }
+    return $last
 }
 
 # ---------------- 主流程 ----------------
@@ -132,11 +145,12 @@ try {
             }
         }
 
+        $prevStatus = [string]$a.status
         $targets = @($a.entry_url) + @($a.backup_domains)
         $best = $null
         foreach ($u in $targets) {
             if ([string]::IsNullOrWhiteSpace($u) -or $u -notmatch '^https?://') { continue }
-            $res = Test-Url -Client $client -Url $u
+            $res = Test-Url -Client $client -Url $u -Attempts $Retry
             if ($res.Code -gt 0) {
                 $best = @{ Url = $u; Code = $res.Code; Final = $res.Final }
                 break
@@ -155,7 +169,12 @@ try {
         else {
             $a.http_code = 0
             $a.final_url = $null
-            if ($Runner -eq 'github-actions') { $a.status = 'dead' }
+            if ($Runner -eq 'github-actions') {
+                # 两振出局：上轮还活着的先降为 unknown，连续两轮都无响应才判 dead
+                if ($prevStatus -eq 'ok') { $a.status = 'unknown' }
+                elseif ($prevStatus -in @('unknown', 'dead')) { $a.status = 'dead' }
+                else { $a.status = 'unknown' }
+            }
             elseif ($a.status -ne 'dead') { $a.status = 'unknown' }
         }
 
@@ -168,7 +187,8 @@ try {
             default { $unknown++ }
         }
 
-        Write-Host ("{0,-14} -> {1,-8} {2}" -f $a.name, $a.status, ($a.http_code))
+        $note = if ($prevStatus -and $prevStatus -ne $a.status) { "（上轮 $prevStatus）" } else { '' }
+        Write-Host ("{0,-14} -> {1,-8} {2} {3}" -f $a.name, $a.status, ($a.http_code), $note)
         $rows.Add(("| {0} | {1} | {2} | {3} | {4} |" -f $a.name, $a.tier, $a.status, $a.http_code, $a.entry_url))
     }
 }
