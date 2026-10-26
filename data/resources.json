@@ -3,28 +3,28 @@
     "type": "评测仓库",
     "name": "KaWaIDeSuNe/dijiajichang（低价机场推荐）",
     "url": "https://github.com/KaWaIDeSuNe/dijiajichang",
-    "notes": "本项目主要数据源（2193 Star，2026 年活跃维护）：月 10 元以下低价机场逐家评测，含测速/解锁/线路分析专页。来源链接含邀请码，本项目已去除。",
+    "notes": "本项目主要数据源（约 2.2k Star，2026-10 仍活跃维护）：月 10 元以下低价机场逐家评测，含测速/解锁/线路分析专页。来源链接含邀请码，本项目已去除。",
     "last_verified": "2026-10-25"
   },
   {
     "type": "评测仓库",
     "name": "KaWaIDeSuNe/xingjiabijichang（性价比机场推荐）",
     "url": "https://github.com/KaWaIDeSuNe/xingjiabijichang",
-    "notes": "同一作者的进阶版（1841 Star，2026 年活跃维护）：10-25 元/月档位，稳定性向机场，逐家有独立测速报告页。",
+    "notes": "同一作者的进阶版（约 1.9k Star，2026-10 仍活跃维护）：10-25 元/月档位，稳定性向机场，逐家有独立测速报告页。",
     "last_verified": "2026-10-25"
   },
   {
     "type": "评测仓库",
     "name": "kamibababa/cheapairport（低价机场推荐 2024）",
     "url": "https://github.com/kamibababa/cheapairport",
-    "notes": "2024-11 评测（20 Star），部分信息可能过时，收录时逐条标注了时效风险。",
+    "notes": "2024-11 评测（约 20 Star），部分信息可能过时，收录时逐条标注了时效风险。",
     "last_verified": "2026-10-25"
   },
   {
     "type": "官方发布页",
     "name": "一元机场官方地址发布仓库（yiyuan-jichang/dizhi）",
     "url": "https://github.com/yiyuan-jichang/dizhi",
-    "notes": "机场域名被封后从官方发布页找新入口的典型范例（2971 Star）：整个仓库就是 3 行 README + 最新官网地址。",
+    "notes": "机场域名被封后从官方发布页找新入口的典型范例（约 3k Star）：整个仓库就是 3 行 README + 最新官网地址。",
     "last_verified": "2026-10-25"
   },
   {

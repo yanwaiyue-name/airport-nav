@@ -15,6 +15,16 @@ $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $NL = [string][char]10
 
+function Get-OrdinalKey {
+    # 把任意字符串按 UTF-16 码位展开成定长十六进制，得到与区域设置无关的可排序键
+    param([string]$Value)
+
+    if ([string]::IsNullOrEmpty($Value)) { return '' }
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in $Value.ToCharArray()) { [void]$sb.Append(([int]$ch).ToString('X4')) }
+    return $sb.ToString()
+}
+
 function Format-JsonIndent {
     # 统一成 4 空格缩进：PS 5.1 与 PS 7 的 ConvertTo-Json 缩进宽度不同，不统一会让 CI 每次提交都产生假 diff
     param([string]$Json, [int]$Indent = 4)
@@ -46,10 +56,12 @@ $resources  = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/resourc
 $tierOrder   = @{ '低价' = 0; '性价比' = 1 }
 $statusOrder = @{ ok = 0; unknown = 1; dead = 2 }
 
-$sorted = @($airports | Sort-Object -Property `
-    @{Expression={ $tierOrder[[string]$_.tier] }}, `
-    @{Expression={ $statusOrder[[string]$_.status] }}, `
-    @{Expression={ [string]$_.name }})
+$sorted = @($airports | Sort-Object -Property @{Expression={
+    # 排序键全部转成 ASCII：Sort-Object 的字符串比较受系统区域设置影响（zh-CN 与 en-US 结果不同），
+    # 直接用中文名排序会让 CI 与本地生成出不同的行序，每次重跑都产生假 diff。
+    '{0}|{1}|{2}' -f $tierOrder[[string]$_.tier], $statusOrder[[string]$_.status], (Get-OrdinalKey ([string]$_.name))
+}})
+if ($sorted.Count -lt $airports.Count) { throw "排序后条数不一致：$($sorted.Count) / $($airports.Count)" }
 
 $low = @($sorted | Where-Object { $_.tier -eq '低价' })
 $mid = @($sorted | Where-Object { $_.tier -eq '性价比' })

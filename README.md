@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|---|---|
 | [EF Network](https://666.subef.top) | 未知（含西班牙家宽节点） | 6.9元/100G/月 | 100G/月 | ✅存活(200) | — | 2026-10-26(github-actions) | 价格已下调，性价比尚可。注意：来源仓库已标注「目前端外大量节点无法使用」，务必先小周期试用。 |
 | [NanoCloud](https://edu.360buyimg.men) | 直连 | 2元/100G/月（直连档） | 100G/月 | ✅存活(200) | [备用×2](https://edu.yuque.men) | 2026-10-26(github-actions) | 开了多年的老店，5GB 流量免费试用，性价比口碑好。新疆地区可用（直连机场一般可用）。来源仓库含邀请码，已去除。 |
-| [一元机场](https://xn--4gq62f.com) | 未知 | 低价月付档（以官网为准） | 以官网为准 | ✅存活(403) | [备用×2](https://www.yiyuanjichang.com) | 2026-10-26(github-actions) | GitHub 防失联地址发布页模式开创者（dizhi 仓库 2971 Star）。入口域名常换，体检自动跟随跳转。两个备用入口均已实测可达。 |
+| [一元机场](https://xn--4gq62f.com) | 未知 | 低价月付档（以官网为准） | 以官网为准 | ✅存活(403) | [备用×2](https://www.yiyuanjichang.com) | 2026-10-26(github-actions) | GitHub 防失联地址发布页模式开创者（dizhi 仓库约 3k Star）。入口域名常换，体检自动跟随跳转。两个备用入口均已实测可达。 |
 | [一分机场](https://xn--4gqx1hgtfdmt.com) | 直连 | 2元/100G/月；6元/1000G/月 | 100G/月 | ✅存活(403) | — | 2026-10-26(github-actions) | 直连机场，速度不错，适合下载/备用；新疆地区可用。来源仓库评价：稳定性、解锁一般。 |
 | [三毛机场](https://smjcdh.com) | 直连 | 3元/年（5G/月）起；另有 5元/1200G/月、8元/不限速/月 | 5G/月（3元年付档） | ✅存活(200) | [备用×1](https://gw-1.xn--ehqx7tcnnope.com) | 2026-10-26(github-actions) | 超低价档代表：年付仅 3 元。直连机场，稳定性一般，域名经常更换，入口以「三毛导航」为准。来源仓库评价：速度尚可、仅供参考。 |
 | [动力港](https://xn--tfrza853d44tvst.xyz) | 中转（日本） | 8元/100G/月；30元/100G不限时 | 100G/月 | ✅存活(200) | — | 2026-10-26(github-actions) | 全 1X 计费节点，质量口碑不错；客服处理速度慢；联通/移动友好，电信不友好。 |
@@ -63,10 +63,10 @@
 
 | 资源 | 类型 | 说明 |
 |---|---|---|
-| [KaWaIDeSuNe/dijiajichang（低价机场推荐）](https://github.com/KaWaIDeSuNe/dijiajichang) | 评测仓库 | 本项目主要数据源（2193 Star，2026 年活跃维护）：月 10 元以下低价机场逐家评测，含测速/解锁/线路分析专页。来源链接含邀请码，本项目已去除。 |
-| [KaWaIDeSuNe/xingjiabijichang（性价比机场推荐）](https://github.com/KaWaIDeSuNe/xingjiabijichang) | 评测仓库 | 同一作者的进阶版（1841 Star，2026 年活跃维护）：10-25 元/月档位，稳定性向机场，逐家有独立测速报告页。 |
-| [kamibababa/cheapairport（低价机场推荐 2024）](https://github.com/kamibababa/cheapairport) | 评测仓库 | 2024-11 评测（20 Star），部分信息可能过时，收录时逐条标注了时效风险。 |
-| [一元机场官方地址发布仓库（yiyuan-jichang/dizhi）](https://github.com/yiyuan-jichang/dizhi) | 官方发布页 | 机场域名被封后从官方发布页找新入口的典型范例（2971 Star）：整个仓库就是 3 行 README + 最新官网地址。 |
+| [KaWaIDeSuNe/dijiajichang（低价机场推荐）](https://github.com/KaWaIDeSuNe/dijiajichang) | 评测仓库 | 本项目主要数据源（约 2.2k Star，2026-10 仍活跃维护）：月 10 元以下低价机场逐家评测，含测速/解锁/线路分析专页。来源链接含邀请码，本项目已去除。 |
+| [KaWaIDeSuNe/xingjiabijichang（性价比机场推荐）](https://github.com/KaWaIDeSuNe/xingjiabijichang) | 评测仓库 | 同一作者的进阶版（约 1.9k Star，2026-10 仍活跃维护）：10-25 元/月档位，稳定性向机场，逐家有独立测速报告页。 |
+| [kamibababa/cheapairport（低价机场推荐 2024）](https://github.com/kamibababa/cheapairport) | 评测仓库 | 2024-11 评测（约 20 Star），部分信息可能过时，收录时逐条标注了时效风险。 |
+| [一元机场官方地址发布仓库（yiyuan-jichang/dizhi）](https://github.com/yiyuan-jichang/dizhi) | 官方发布页 | 机场域名被封后从官方发布页找新入口的典型范例（约 3k Star）：整个仓库就是 3 行 README + 最新官网地址。 |
 | [节点在线状态实时监控页（dijiajichang 作者维护）](https://proxy.20261917.xyz/probe/) | 状态监控 | 每 10 分钟自动探测各家机场节点在线情况，买之前可以先看一眼实时状态。本项目暂未自建节点级探测，仅测官网入口。 |
 | [机场客户端下载地址汇总（dijiajichang 作者维护）](https://proxy.20261917.xyz/guide/clients-download.html) | 客户端下载指南 | 各平台客户端下载入口汇总页，可与本站「客户端速查」互补。 |
 | [silascript/ITNotes · Ladder_Note](https://github.com/silascript/ITNotes/blob/main/Ladder/Ladder_Note.md) | 教程笔记 | 个人翻墙笔记（2026-10 仍在更新）：机场域名失效后如何通过导航页找新入口等实战经验。 |
