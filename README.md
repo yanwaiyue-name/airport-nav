@@ -1,6 +1,6 @@
 # airport-nav · 机场导航
 
-> 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，只列"现在还能打开"的入口。**
+> 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，优先列出能打开的入口；确认失效的保留 ❌ 标记不删，方便你判断它有没有复活。**
 
 共收录 **14** 家低价机场 + **4** 家性价比机场，最近一次体检 **17** 家存活（2026-10-26）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
 
@@ -90,9 +90,10 @@
 ## 自动体检是怎么做的
 
 - 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口（HEAD 优先，站点不支持 HEAD 时退回 GET，带浏览器 UA）；
-- 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口；
+- 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口，**旧入口降级为备用域名保留**（不因为一次临时故障就从项目里消失）；
 - 判死采用**两振出局**：单轮无响应只降为❓未验证，连续两轮都无响应才标❌失效（本地预检永不判死）；
-- 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)。
+- 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)；
+- 网页数据的引用带内容哈希版本号（`data.js?v=xxxxxxxx`），数据一变 URL 就变，避免 Pages 边缘缓存让你看到旧数据。
 
 ## 参与贡献
 

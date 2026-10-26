@@ -44,7 +44,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          # 只提交体检与渲染会产出的文件，不用 git add -A，避免把临时文件/本地残留一起带进来
+          git add -- data/ docs/ README.md
           if git diff --cached --quiet; then
             echo "本次体检结果与本仓库现状一致，跳过提交"
             exit 0

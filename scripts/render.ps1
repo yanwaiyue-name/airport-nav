@@ -1,4 +1,4 @@
-<#
+﻿<#
 airport-nav 渲染脚本：data/*.json -> README.md + docs/data.js
 
 用法：
@@ -7,6 +7,7 @@ airport-nav 渲染脚本：data/*.json -> README.md + docs/data.js
 说明：
   README.md 由本脚本生成，人工不要直接编辑 README，改 data/*.json 后重跑本脚本。
   机场按 tier 分两张表（低价 / 性价比），工具按 category 汇总，参考资源单独成表。
+  docs/index.html 里 <script src="data.js"> 的 ?v= 版本号由本脚本按 data.js 内容哈希自动刷新。
 #>
 param()
 
@@ -14,6 +15,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $NL = [string][char]10
+. (Join-Path $PSScriptRoot 'lib-json.ps1')
 
 function Get-OrdinalKey {
     # 把任意字符串按 UTF-16 码位展开成定长十六进制，得到与区域设置无关的可排序键
@@ -23,30 +25,6 @@ function Get-OrdinalKey {
     $sb = New-Object System.Text.StringBuilder
     foreach ($ch in $Value.ToCharArray()) { [void]$sb.Append(([int]$ch).ToString('X4')) }
     return $sb.ToString()
-}
-
-function Format-JsonIndent {
-    # 统一成 4 空格缩进：PS 5.1 与 PS 7 的 ConvertTo-Json 缩进宽度不同，不统一会让 CI 每次提交都产生假 diff
-    param([string]$Json, [int]$Indent = 4)
-
-    $lines = $Json -split '\r?\n'
-    $min = 0
-    foreach ($l in $lines) {
-        if ($l -match '^( +)') {
-            $n = $Matches[1].Length
-            if ($min -eq 0 -or $n -lt $min) { $min = $n }
-        }
-    }
-    if ($min -le 0 -or $min -eq $Indent) { return ($lines -join $NL) }
-
-    $factor = [double]$Indent / $min
-    $out = foreach ($l in $lines) {
-        if ($l -match '^( +)(.*)$') {
-            (' ' * [int][Math]::Round($Matches[1].Length * $factor)) + $Matches[2]
-        }
-        else { $l }
-    }
-    return ($out -join $NL)
 }
 
 $airports   = Get-Content -LiteralPath (Join-Path $root 'data/airports.json')   -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -113,7 +91,7 @@ $resTable = $resRows -join "`n"
 $template = @'
 # airport-nav · 机场导航
 
-> 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，只列"现在还能打开"的入口。**
+> 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，优先列出能打开的入口；确认失效的保留 ❌ 标记不删，方便你判断它有没有复活。**
 
 共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家存活（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
 
@@ -171,9 +149,10 @@ $template = @'
 ## 自动体检是怎么做的
 
 - 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口（HEAD 优先，站点不支持 HEAD 时退回 GET，带浏览器 UA）；
-- 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口；
+- 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口，**旧入口降级为备用域名保留**（不因为一次临时故障就从项目里消失）；
 - 判死采用**两振出局**：单轮无响应只降为❓未验证，连续两轮都无响应才标❌失效（本地预检永不判死）；
-- 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)。
+- 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)；
+- 网页数据的引用带内容哈希版本号（`data.js?v=xxxxxxxx`），数据一变 URL 就变，避免 Pages 边缘缓存让你看到旧数据。
 
 ## 参与贡献
 
@@ -192,6 +171,22 @@ $md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$(
 [System.IO.File]::WriteAllText((Join-Path $root 'README.md'), $md, $utf8)
 
 $nav = [ordered]@{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
-$navJson = Format-JsonIndent -Json ($nav | ConvertTo-Json -Depth 10) -Indent 2
-[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), ('window.NAV_DATA = ' + $navJson + ';'), $utf8)
-Write-Host ("README.md 与 docs/data.js 已生成：低价 {0} 家 + 性价比 {1} 家，{2} 家存活（{3}）" -f $low.Count, $mid.Count, $okCount, $today)
+$navBody = 'window.NAV_DATA = ' + (ConvertTo-StableJson -Value $nav) + ';'
+[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), $navBody, $utf8)
+
+# 缓存戳：GitHub Pages 的边缘缓存按 URL 缓存静态资源，数据换了但 URL 不变，浏览器和边缘节点可能继续发旧文件。
+# 这里用 data.js 内容自身的 SHA256 前 8 位做版本号：数据一变 URL 必变，数据没变则 URL 不变，缓存照常生效。
+$sha = [System.Security.Cryptography.SHA256]::Create()
+try { $hash = $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($navBody)) }
+finally { $sha.Dispose() }
+$ver = -join ($hash[0..3] | ForEach-Object { $_.ToString('x2') })
+
+$indexPath = Join-Path $root 'docs/index.html'
+$indexOld = [System.IO.File]::ReadAllText($indexPath, $utf8)
+$indexNew = [regex]::Replace($indexOld, '<script src="data\.js(?:\?v=[0-9a-f]*)?"></script>', ('<script src="data.js?v=' + $ver + '"></script>'))
+if ($indexNew -ne $indexOld) { [System.IO.File]::WriteAllText($indexPath, $indexNew, $utf8) }
+if ($indexNew -notmatch 'data\.js\?v=[0-9a-f]{8}') {
+    Write-Warning 'docs/index.html 里没找到 <script src="data.js"></script>，缓存版本号没写进去，请检查该文件。'
+}
+
+Write-Host ("README.md 与 docs/data.js 已生成：低价 {0} 家 + 性价比 {1} 家，{2} 家存活（{3}），data.js 版本 {4}" -f $low.Count, $mid.Count, $okCount, $today, $ver)

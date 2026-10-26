@@ -1,4 +1,4 @@
-<#
+﻿<#
 airport-nav 每周链接体检
 
 用法：
@@ -9,7 +9,7 @@ airport-nav 每周链接体检
 
 行为：
   1. 逐个请求每个机场的 entry_url 和 backup_domains（HEAD 优先，不支持 HEAD 时退回 GET）；
-  2. 入口无响应时自动尝试备用域名；备用域名可用则自动升级为入口；
+  2. 入口无响应时自动尝试备用域名；备用域名可用则自动升级为入口，旧入口降级为备用域名保留（最多 -MaxBackup 个）；
   3. 结果（status / http_code / final_url / last_checked / checked_from）写回数据文件；
   4. 只要服务器有任何 HTTP 响应（含 301/302/403 人机验证）即视为入口存活；
   5. 单个站点连续探测整轮失败时再重试一轮（-Retry），仍失败才继续判定流程。
@@ -26,6 +26,7 @@ param(
     [string]$Runner = 'local',
     [int]$TimeoutSec = 10,
     [int]$Retry = 2,
+    [int]$MaxBackup = 5,
     [switch]$KeepProxy,
     [string]$DataPath
 )
@@ -50,29 +51,9 @@ if (-not $KeepProxy) {
 
 # ---------------- 工具函数 ----------------
 
-function Format-JsonIndent {
-    # 把任意缩进（PS 5.1 是 4 空格、PS 7 是 2 空格）统一成 4 空格，保证 CI 与本地输出逐字节一致
-    param([string]$Json, [int]$Indent = 4)
-
-    $lines = $Json -split '\r?\n'
-    $min = 0
-    foreach ($l in $lines) {
-        if ($l -match '^( +)') {
-            $n = $Matches[1].Length
-            if ($min -eq 0 -or $n -lt $min) { $min = $n }
-        }
-    }
-    if ($min -le 0 -or $min -eq $Indent) { return ($lines -join $NL) }
-
-    $factor = [double]$Indent / $min
-    $out = foreach ($l in $lines) {
-        if ($l -match '^( +)(.*)$') {
-            (' ' * [int][Math]::Round($Matches[1].Length * $factor)) + $Matches[2]
-        }
-        else { $l }
-    }
-    return ($out -join $NL)
-}
+# 确定性 JSON 序列化（见 lib-json.ps1）。PS 5.1 与 PS 7 的 ConvertTo-Json 格式不同，本地与 CI 必须用同一套写法，
+# 否则每次本地预检都会把整个 data/airports.json 重排一遍。
+. (Join-Path $PSScriptRoot 'lib-json.ps1')
 
 function New-ProbeClient {
     param([int]$Timeout)
@@ -131,7 +112,10 @@ function Test-Url {
 
 # ---------------- 主流程 ----------------
 
-$airports = @(Get-Content -LiteralPath $DataPath -Raw -Encoding UTF8 | ConvertFrom-Json)
+# 先落到变量再套 @()：PS 5.1 的 ConvertFrom-Json 不展开顶层数组，写成 @(管道) 会得到「数组套数组」的一层壳，
+# 那样 foreach 拿到的 $a 是整个数组，字段全变成数组，写回时会把数据文件写坏。PS 7 默认展开，两者行为不同。
+$rawData  = Get-Content -LiteralPath $DataPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$airports = @($rawData)
 $client = New-ProbeClient -Timeout $TimeoutSec
 
 $rows = New-Object System.Collections.Generic.List[string]
@@ -158,11 +142,18 @@ try {
         }
 
         if ($best) {
+            $oldEntry = [string]$a.entry_url
             $a.status = 'ok'
             $a.http_code = $best.Code
             $a.final_url = $best.Final
-            if ($best.Url -ne $a.entry_url) {
-                Write-Host ("{0}: 入口切换 {1} -> {2}" -f $a.name, $a.entry_url, $best.Url)
+            if ($best.Url -ne $oldEntry) {
+                # 旧入口不丢弃：降级成备用域名排在最前。否则主入口只要临时抖一轮，就会被永久从数据里抹掉，
+                # 下次想换回来时连原来的地址都找不到了。
+                $kept = @(@($a.backup_domains) | Where-Object { $_ -and $_ -ne $best.Url -and $_ -ne $oldEntry })
+                if ($oldEntry -match '^https?://') { $kept = @($oldEntry) + $kept }
+                if ($kept.Count -gt $MaxBackup) { $kept = @($kept[0..($MaxBackup - 1)]) }
+                $a.backup_domains = [object[]]$kept
+                Write-Host ("{0}: 入口切换 {1} -> {2}（旧入口已降级为备用）" -f $a.name, $oldEntry, $best.Url)
                 $a.entry_url = $best.Url
             }
         }
@@ -196,9 +187,9 @@ finally {
     $client.Dispose()
 }
 
-$json = Format-JsonIndent -Json ($airports | ConvertTo-Json -Depth 10)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($DataPath, $json, $utf8)
+# data/*.json 沿用 4 空格缩进，与人手编辑时的习惯一致
+[System.IO.File]::WriteAllText($DataPath, (ConvertTo-StableJson -Value $airports -Indent 4), $utf8)
 
 $line = "体检完成（{0} / {1}）：存活 {2} 家，未验证 {3} 家，失效 {4} 家 -> {5}" -f $today, $Runner, $ok, $unknown, $dead, $DataPath
 Write-Host $line
