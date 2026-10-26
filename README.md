@@ -92,7 +92,7 @@
 - 每周六 11:00（北京时间）GitHub Actions 自动运行 [check_links.ps1](scripts/check_links.ps1)，逐个请求各机场入口（HEAD 优先，站点不支持 HEAD 时退回 GET，带浏览器 UA）；
 - 入口打不开时先重试一轮，仍打不开才尝试备用域名；备用域名可用则自动升级为新入口，**旧入口降级为备用域名保留**（不因为一次临时故障就从项目里消失）；
 - 判死采用**两振出局**：单轮无响应只降为❓未验证，连续两轮都无响应才标❌失效（本地预检永不判死）；
-- 判死前再向 [check-host.net](https://check-host.net) 的多个境外节点复核一次：只要有任一节点能看到该入口，本轮仍记❓未验证——**只有美国 runner 访问不到，不代表站点已死**；第三方服务不可用时不表态，按原规则处理；
+- 判死前再换两个境外位置复核（[r.jina.ai](https://r.jina.ai) 抓取服务 + [check-host.net](https://check-host.net) 多国节点）：只要有一个地方能拿到响应，本轮仍记❓未验证——**只有美国 runner 访问不到，不代表站点已死**；两边都说看不到或都不可用时，按原规则判死；
 - 结果自动写回 [data/airports.json](data/airports.json)，并重新生成本 README 和 [导航网页](https://yanwaiyue-name.github.io/airport-nav/)；
 - 网页数据的引用带内容哈希版本号（`data.js?v=xxxxxxxx`），数据一变 URL 就变，避免 Pages 边缘缓存让你看到旧数据。
 
