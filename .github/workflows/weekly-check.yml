@@ -40,6 +40,11 @@ jobs:
         shell: pwsh
         run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12 -SecondOpinion
 
+      - name: 落地页品牌核对（能打开 ≠ 打开的是这家）
+        shell: pwsh
+        continue-on-error: true
+        run: ./scripts/check_brand.ps1
+
       - name: 重新渲染 README 与网页数据
         shell: pwsh
         run: ./scripts/render.ps1
@@ -57,6 +62,14 @@ jobs:
           git commit -m "chore: 每周体检结果更新"
           git pull --rebase --autostash
           git push
+
+      - name: 上传品牌核对报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brand-report
+          path: brand-report.md
+          if-no-files-found: ignore
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

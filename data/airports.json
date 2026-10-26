@@ -248,7 +248,7 @@
         "protocols": [
             "未知"
         ],
-        "notes": "小流量低价档，各方面尚可（来源仓库评价），适合轻度使用。",
+        "notes": "小流量低价档，适合轻度使用。⚠️ 2026-10-26 实测：入口 svip.xingheyun.lol 现跳转到 app.zhizi8.com，落地页品牌为「反质子」，页面内无「星河云」字样，疑为换牌/转卖，购买前务必在站内确认品牌，不要再当作星河云直营。",
         "source": "kamibababa/cheapairport",
         "status": "ok",
         "http_code": 200,

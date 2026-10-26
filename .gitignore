@@ -3,3 +3,6 @@ Thumbs.db
 .DS_Store
 .mimosa/
 本地文档/
+
+# 品牌核对报告（每次现算）
+brand-report.md
