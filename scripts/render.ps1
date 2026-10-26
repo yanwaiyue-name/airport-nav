@@ -1,4 +1,4 @@
-﻿<#
+<#
 airport-nav 渲染脚本：data/*.json -> README.md + docs/data.js
 
 用法：
@@ -13,6 +13,31 @@ param()
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
+$NL = [string][char]10
+
+function Format-JsonIndent {
+    # 统一成 4 空格缩进：PS 5.1 与 PS 7 的 ConvertTo-Json 缩进宽度不同，不统一会让 CI 每次提交都产生假 diff
+    param([string]$Json, [int]$Indent = 4)
+
+    $lines = $Json -split '\r?\n'
+    $min = 0
+    foreach ($l in $lines) {
+        if ($l -match '^( +)') {
+            $n = $Matches[1].Length
+            if ($min -eq 0 -or $n -lt $min) { $min = $n }
+        }
+    }
+    if ($min -le 0 -or $min -eq $Indent) { return ($lines -join $NL) }
+
+    $factor = [double]$Indent / $min
+    $out = foreach ($l in $lines) {
+        if ($l -match '^( +)(.*)$') {
+            (' ' * [int][Math]::Round($Matches[1].Length * $factor)) + $Matches[2]
+        }
+        else { $l }
+    }
+    return ($out -join $NL)
+}
 
 $airports   = Get-Content -LiteralPath (Join-Path $root 'data/airports.json')   -Raw -Encoding UTF8 | ConvertFrom-Json
 $tools      = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/tools.json')      -Raw -Encoding UTF8 | ConvertFrom-Json)
@@ -153,6 +178,7 @@ $template = @'
 $md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
 [System.IO.File]::WriteAllText((Join-Path $root 'README.md'), $md, $utf8)
 
-$nav = @{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
-[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), ('window.NAV_DATA = ' + ($nav | ConvertTo-Json -Depth 10) + ';'), $utf8)
+$nav = [ordered]@{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
+$navJson = Format-JsonIndent -Json ($nav | ConvertTo-Json -Depth 10) -Indent 2
+[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), ('window.NAV_DATA = ' + $navJson + ';'), $utf8)
 Write-Host ("README.md 与 docs/data.js 已生成：低价 {0} 家 + 性价比 {1} 家，{2} 家存活（{3}）" -f $low.Count, $mid.Count, $okCount, $today)

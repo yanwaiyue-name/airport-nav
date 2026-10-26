@@ -18,6 +18,7 @@ concurrency:
 jobs:
   check-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -25,9 +26,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: 环境信息
+        shell: pwsh
+        run: |
+          $PSVersionTable | Out-String | Write-Host
+          "pwsh $($PSVersionTable.PSVersion)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
       - name: 链接体检（境外环境，无响应判失效）
         shell: pwsh
-        run: ./scripts/check_links.ps1 -Runner github-actions
+        run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12
 
       - name: 重新渲染 README 与网页数据
         shell: pwsh
@@ -38,7 +45,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "chore: 每周体检结果更新"
+          if git diff --cached --quiet; then
+            echo "本次体检结果与本仓库现状一致，跳过提交"
+            exit 0
+          fi
+          git commit -m "chore: 每周体检结果更新"
+          git pull --rebase --autostash
           git push
 
       - name: Setup Pages
