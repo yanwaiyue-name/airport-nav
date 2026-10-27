@@ -176,8 +176,19 @@
     });
   }
 
+  // 入口实际跳到别的域名时提示落地域名：能打开 ≠ 打开的是这家
+  function jumpNote(a) {
+    if (!a.final_url || !a.entry_url) return '';
+    try {
+      var from = new URL(a.entry_url).host;
+      var to = new URL(a.final_url).host;
+      if (from === to) return '';
+      return '<br><span class="notes">→ ' + esc(to) + '</span>';
+    } catch (e) { return ''; }
+  }
+
   function badge(a) {
-    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>';
+    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>' + jumpNote(a);
     if (a.status === 'dead') return '<span class="badge dead">❌失效</span>';
     return '<span class="badge unknown">❓未验证</span>';
   }
