@@ -100,6 +100,23 @@ foreach ($a in $airports) {
         Add-Err ("{0}：status 只能是 ok / unknown / dead，实际是 '{1}'" -f $label, $a.status)
     }
 
+    # reachable_via 记录入口是通过哪条通道探测到的。
+    # 活着（ok）的条目必须有这个字段，否则页面上分不清「直连可达」和「仅墙外可达」；
+    # 死站（dead）允许为空，因为压根没探测成功。
+    $viaAllowed = @('direct', 'proxy', '')
+    if ($a.PSObject.Properties.Name -contains 'reachable_via') {
+        $via = [string]$a.reachable_via
+        if ($viaAllowed -notcontains $via) {
+            Add-Err ("{0}：reachable_via 只能是 direct / proxy / 空，实际是 '{1}'" -f $label, $via)
+        }
+        if ($a.status -eq 'ok' -and $via -eq '') {
+            Add-Warn ("{0}：状态为 ok 但缺 reachable_via，页面上无法标注是否仅墙外可达" -f $label)
+        }
+    }
+    elseif ($a.status -eq 'ok') {
+        Add-Warn ("{0}：状态为 ok 但没有 reachable_via 字段" -f $label)
+    }
+
     $bk = @(@($a.backup_domains) | Where-Object { $_ })
     foreach ($u in $bk) {
         if (-not (Test-UrlText ([string]$u))) { Add-Err ("{0}：backup_domains 里有非 http(s) 链接 -> {1}" -f $label, $u) }
