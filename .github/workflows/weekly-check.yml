@@ -38,6 +38,8 @@ jobs:
 
       - name: 链接体检（境外环境，无响应判失效）
         shell: pwsh
+        # CI 侧没有本地代理，reachable_via 一律记 direct：
+        # 「仅墙外可达」这个标记只能由本地带 -ProxyUrl 的预检产出，CI 不会覆盖它
         run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12 -SecondOpinion
 
       - name: 落地页品牌核对（能打开 ≠ 打开的是这家）

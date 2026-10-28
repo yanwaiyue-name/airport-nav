@@ -76,11 +76,18 @@ function Get-JumpNote($a) {
     return ('<br>→ ' + $hTo)
 }
 
+function Get-ViaNote($a) {
+    # 只标注「仅墙外可达」：墙内直连无响应、走代理才探测到的入口，
+    # 说明域名很可能被污染，用户在国内直接点是打不开的，需要先有可用代理。
+    if ([string]$a.reachable_via -ne 'proxy') { return '' }
+    return '<br>🌐 仅墙外可达'
+}
+
 function Make-ApRows($list) {
     $rows = foreach ($a in $list) {
         $bk = @(@($a.backup_domains) | Where-Object { $_ })
         $bkTxt = if ($bk.Count -gt 0) { "[备用×$($bk.Count)]($($bk[0]))" } else { '—' }
-        $st = (Badge ([string]$a.status) $a.http_code) + (Get-JumpNote $a)
+        $st = (Badge ([string]$a.status) $a.http_code) + (Get-ViaNote $a) + (Get-JumpNote $a)
         $chk = "{0}({1})" -f $a.last_checked, $a.checked_from
         "| [{0}]({1}) | {2} | {3} | {4} | {5} | {6} | {7} | {8} |" -f `
             $a.name, $a.entry_url, (Clean $a.line), (Clean $a.price), (Clean $a.traffic), $st, $bkTxt, $chk, (Clean $a.notes)
@@ -126,7 +133,7 @@ $template = @'
 |---|---|---|---|---|---|---|---|
 {MIDTABLE}
 
-> **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = 连续两轮 GitHub Actions 检测都无响应（单轮失败先降为❓，避免一次抖动误判死链）。检测只代表**入口可达**，不代表速度与实际可用性。状态后面的 <code>→ 域名</code> 表示入口实际跳到了别的域名（换牌、转卖、停放页都会这样），不代表是官方换域名，看到就先在站内确认品牌再付款。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
+> **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = 连续两轮 GitHub Actions 检测都无响应（单轮失败先降为❓，避免一次抖动误判死链）。检测只代表**入口可达**，不代表速度与实际可用性。状态后面的 <code>→ 域名</code> 表示入口实际跳到了别的域名（换牌、转卖、停放页都会这样），不代表是官方换域名，看到就先在站内确认品牌再付款。<code>🌐 仅墙外可达</code> 表示墙内直连打不开、走代理才探测到——域名很可能被污染，**你自己在国内直接点会连不上**，需要先有一个能用的代理。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
 >
 > **数据来源**：公开评测仓库（[kamibababa/cheapairport](https://github.com/kamibababa/cheapairport)、[KaWaIDeSuNe/dijiajichang](https://github.com/KaWaIDeSuNe/dijiajichang)、[KaWaIDeSuNe/xingjiabijichang](https://github.com/KaWaIDeSuNe/xingjiabijichang) 等）与机场官方发布页。来源链接中的邀请码已全部去除，本项目与所列机场无利益关系。
 

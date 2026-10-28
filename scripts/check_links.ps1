@@ -1,4 +1,4 @@
-﻿<#
+<#
 airport-nav 每周链接体检
 
 用法：
@@ -6,13 +6,15 @@ airport-nav 每周链接体检
   ./scripts/check_links.ps1 -Runner github-actions   # CI 环境：无响应才判 dead
   ./scripts/check_links.ps1 -KeepProxy               # 保留系统代理环境变量（默认清空，防失效代理误判）
   ./scripts/check_links.ps1 -DataPath ../x.json      # 指定数据文件（默认 data/airports.json）
+  ./scripts/check_links.ps1 -ProxyUrl 127.0.0.1:7897  # 本机代理口径：直连打不开的再用代理复核一遍
 
 行为：
   1. 逐个请求每个机场的 entry_url 和 backup_domains（HEAD 优先，不支持 HEAD 时退回 GET）；
   2. 入口无响应时自动尝试备用域名；备用域名可用则自动升级为入口，旧入口降级为备用域名保留（最多 -MaxBackup 个）；
   3. 结果（status / http_code / final_url / last_checked / checked_from）写回数据文件；
   4. 只要服务器有任何 HTTP 响应（含 301/302/403 人机验证）即视为入口存活；
-  5. 单个站点连续探测整轮失败时再重试一轮（-Retry），仍失败才继续判定流程。
+  5. 单个站点连续探测整轮失败时再重试一轮（-Retry），仍失败才继续判定流程；
+  6. 指定 -ProxyUrl 时，直连探测失败会再走一次代理复核（本机 Clash 等）。
 
 判死规则（两振出局 + 异地复核）：
   CI 环境下单次无响应不会直接判死 —— 上轮 ok 的降为 unknown，上轮已是 unknown/dead 的才判 dead。
@@ -34,6 +36,7 @@ param(
     [switch]$KeepProxy,
     [switch]$SecondOpinion,
     [int]$OpinionNodes = 3,
+    [string]$ProxyUrl,
     [string]$DataPath
 )
 
@@ -62,13 +65,22 @@ if (-not $KeepProxy) {
 . (Join-Path $PSScriptRoot 'lib-json.ps1')
 
 function New-ProbeClient {
-    param([int]$Timeout)
+    param([int]$Timeout, [string]$Proxy)
 
     Add-Type -AssemblyName System.Net.Http -ErrorAction SilentlyContinue
     $h = [System.Net.Http.HttpClientHandler]::new()
     $h.AllowAutoRedirect = $true
     $h.MaxAutomaticRedirections = 5
     $h.AutomaticDecompression = [System.Net.DecompressionMethods]::GZip -bor [System.Net.DecompressionMethods]::Deflate
+    if ($Proxy) {
+        # 走本机代理（Clash 等）。只用于"直连打不开"的复核，不作为主判据。
+        $h.Proxy = [System.Net.WebProxy]::new($Proxy)
+        $h.UseProxy = $true
+    }
+    else {
+        # 显式关掉代理：本机可能挂着系统代理，不清掉会让"直连口径"名不副实
+        $h.UseProxy = $false
+    }
     $c = [System.Net.Http.HttpClient]::new($h)
     $c.Timeout = [TimeSpan]::FromSeconds($Timeout)
     [void]$c.DefaultRequestHeaders.TryAddWithoutValidation('User-Agent', $UserAgent)
@@ -213,6 +225,12 @@ function Get-SecondOpinion {
 $rawData  = Get-Content -LiteralPath $DataPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $airports = @($rawData)
 $client = New-ProbeClient -Timeout $TimeoutSec
+# 代理客户端只在指定 -ProxyUrl 时创建；用作"直连失败后"的第二口径复核
+$proxyClient = $null
+if ($ProxyUrl) {
+    $proxyClient = New-ProbeClient -Timeout $TimeoutSec -Proxy $ProxyUrl
+    Write-Host ("已启用代理复核口径：" + $ProxyUrl)
+}
 
 $rows = New-Object System.Collections.Generic.List[string]
 $ok = 0; $unknown = 0; $dead = 0
@@ -232,8 +250,19 @@ try {
             if ([string]::IsNullOrWhiteSpace($u) -or $u -notmatch '^https?://') { continue }
             $res = Test-Url -Client $client -Url $u -Attempts $Retry
             if ($res.Code -gt 0) {
-                $best = @{ Url = $u; Code = $res.Code; Final = $res.Final }
+                $best = @{ Url = $u; Code = $res.Code; Final = $res.Final; Via = 'direct' }
                 break
+            }
+
+            # 直连打不开时，再走本机代理试一次。很多机场入口只是被 DNS 污染，
+            # 并不是死站 —— 不加这一步会把"只在墙外可达"的活站一路判成 unknown。
+            if ($proxyClient) {
+                $res2 = Test-Url -Client $proxyClient -Url $u -Attempts 1
+                if ($res2.Code -gt 0) {
+                    Write-Host ("{0}: 直连无响应，代理可达 -> {1}" -f $a.name, $u)
+                    $best = @{ Url = $u; Code = $res2.Code; Final = $res2.Final; Via = 'proxy' }
+                    break
+                }
             }
         }
 
@@ -242,6 +271,17 @@ try {
             $a.status = 'ok'
             $a.http_code = $best.Code
             $a.final_url = $best.Final
+            # 记录本轮是通过哪条通道探测到的，便于区分「墙内直连可达」与「仅墙外可达」。
+            # CI 侧没有本地代理（Via 恒为 direct），若此时无条件覆盖，就会把本地预检得出的
+            # proxy 标记抹掉 —— 那样 README 里的「🌐 仅墙外可达」每周都会被 CI 清空一次。
+            # 所以：只在真拿到 proxy 结论时写入，direct 结果不覆盖已有的 proxy 标记。
+            $prevVia = [string]$a.reachable_via
+            $newVia = $best.Via
+            if ($newVia -eq 'direct' -and $prevVia -eq 'proxy') {
+                $newVia = 'proxy'   # 保留本地代理口径的结论
+            }
+            if ($a.PSObject.Properties.Name -contains 'reachable_via') { $a.reachable_via = $newVia }
+            else { $a | Add-Member -NotePropertyName 'reachable_via' -NotePropertyValue $newVia -Force }
             if ($best.Url -ne $oldEntry) {
                 # 旧入口不丢弃：降级成备用域名排在最前。否则主入口只要临时抖一轮，就会被永久从数据里抹掉，
                 # 下次想换回来时连原来的地址都找不到了。
@@ -254,6 +294,23 @@ try {
             }
         }
         else {
+            # 已知「仅墙外可达」的入口，在没开代理的环境下打不开是预期内的，
+            # 不能因此把状态降级：否则本地无代理预检、或 CI 跑一轮，就会把这些活站
+            # 一律刷成 unknown，README 上刚标好的 🌐 标记也跟着失效。
+            $knownProxyOnly = ([string]$a.reachable_via -eq 'proxy' -and -not $ProxyUrl)
+            if ($knownProxyOnly) {
+                Write-Host ("{0}: 已知仅墙外可达，本环境无代理，保留原状态 {1}" -f $a.name, $a.status)
+                $a.last_checked = $today
+                $a.checked_from = $Runner
+                $rows.Add(("| {0} | {1} | {2} | {3} | {4} |" -f $a.name, $a.tier, $a.status, $a.http_code, $a.entry_url))
+                switch ($a.status) {
+                    'ok' { $ok++ }
+                    'dead' { $dead++ }
+                    default { $unknown++ }
+                }
+                continue
+            }
+
             $a.http_code = 0
             $a.final_url = $null
             if ($Runner -eq 'github-actions') {
@@ -292,6 +349,7 @@ try {
 }
 finally {
     $client.Dispose()
+    if ($proxyClient) { $proxyClient.Dispose() }
 }
 
 $utf8 = New-Object System.Text.UTF8Encoding($false)

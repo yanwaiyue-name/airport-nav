@@ -156,7 +156,7 @@
   </footer>
 </div>
 
-<script src="data.js?v=20b23d8c"></script>
+<script src="data.js?v=3a10bd33"></script>
 <script>
 (function () {
   var data = window.NAV_DATA || { airports: [], tools: [], resources: [], generated: '' };
@@ -187,8 +187,14 @@
     } catch (e) { return ''; }
   }
 
+  // 墙内直连无响应、只有走代理才探测到的入口：域名很可能被污染
+  function viaNote(a) {
+    if (a.reachable_via !== 'proxy') return '';
+    return '<br><span class="notes" title="墙内直连无响应，走代理才探测到">🌐 仅墙外可达</span>';
+  }
+
   function badge(a) {
-    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>' + jumpNote(a);
+    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>' + viaNote(a) + jumpNote(a);
     if (a.status === 'dead') return '<span class="badge dead">❌失效</span>';
     return '<span class="badge unknown">❓未验证</span>';
   }
