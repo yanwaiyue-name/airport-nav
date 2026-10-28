@@ -1,4 +1,13 @@
 * text=auto
+
+# 脚本按平台方言钉死换行
 *.ps1 text eol=crlf
 *.yml text eol=lf
 *.cmd text eol=crlf
+
+# render.ps1 用 [System.IO.File]::WriteAllText 写 LF。
+# 在 core.autocrlf=true 的 Windows 上，签出的 CRLF 与生成的 LF 会被 git 判成“已修改”，
+# 于是每次本地跑完 render 都出现 README.md / docs/data.js 的幻影 diff（git diff 为空、git add 后 cached 也为空）。
+# 把这两个生成物显式钉成 LF，工作区与索引就一致了。
+README.md    text eol=lf
+docs/data.js text eol=lf

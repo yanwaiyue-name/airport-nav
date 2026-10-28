@@ -57,7 +57,7 @@
 | [subconverter](https://github.com/tindy2013/subconverter) | 订阅·转换工具 | 自部署服务/内核 | 老牌订阅格式转换后端（17k+ Star），把各家机场订阅互转为 Clash/sing-box 等格式，可自部署 |
 | [Sub-Store](https://github.com/sub-store-org/Sub-Store) | 订阅·转换工具 | 全平台（前端 + 后端） | 订阅全功能管理工具（10k+ Star，活跃维护）：转换、过滤、重命名、合并、脚本处理 |
 
-> 各客户端的**官方下载直链**（按电脑架构自动选版本，43 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
+> 各客户端的**官方下载直链**（按电脑架构自动选版本，47 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
 
 ## 参考资源与延伸阅读
 

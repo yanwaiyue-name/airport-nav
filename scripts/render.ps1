@@ -143,7 +143,7 @@ $template = @'
 |---|---|---|---|
 {TOOLTABLE}
 
-> 各客户端的**官方下载直链**（按电脑架构自动选版本，43 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
+> 各客户端的**官方下载直链**（按电脑架构自动选版本，47 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
 
 ## 参考资源与延伸阅读
 
@@ -190,11 +190,21 @@ $template = @'
 '@
 
 $md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
-[System.IO.File]::WriteAllText((Join-Path $root 'README.md'), $md, $utf8)
+
+# 输出统一成 LF。
+# 拼出来的是「文件中 here-string 模板自带的换行（Windows 签出后是 CRLF）＋ 脚本用 $NL 拼的行（LF）」，
+# 不归一化就会写出混行文件。配合 .gitattributes 里 README.md / docs/data.js 的 eol=lf，
+# 否则在 core.autocrlf=true 的机器上每次 render 都会留下幻影 diff（git diff 为空，status 却显示 M）。
+function ConvertTo-Lf([string]$Text) {
+    if ([string]::IsNullOrEmpty($Text)) { return $Text }
+    return $Text.Replace([string][char]13 + [string][char]10, [string][char]10)
+}
+
+[System.IO.File]::WriteAllText((Join-Path $root 'README.md'), (ConvertTo-Lf $md), $utf8)
 
 $nav = [ordered]@{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
 $navBody = 'window.NAV_DATA = ' + (ConvertTo-StableJson -Value $nav) + ';'
-[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), $navBody, $utf8)
+[System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), (ConvertTo-Lf $navBody), $utf8)
 
 # 缓存戳：GitHub Pages 的边缘缓存按 URL 缓存静态资源，数据换了但 URL 不变，浏览器和边缘节点可能继续发旧文件。
 # 这里用 data.js 内容自身的 SHA256 前 8 位做版本号：数据一变 URL 必变，数据没变则 URL 不变，缓存照常生效。
