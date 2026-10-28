@@ -42,6 +42,13 @@ jobs:
         # 「仅墙外可达」这个标记只能由本地带 -ProxyUrl 的预检产出，CI 不会覆盖它
         run: ./scripts/check_links.ps1 -Runner github-actions -TimeoutSec 12 -SecondOpinion
 
+      - name: 节点实测（仅本地有订阅时有效）
+        shell: pwsh
+        # CI runner 上没有 Clash 订阅，本步会直接跳过并 exit 0；
+        # 它的价值在本地手动跑：能回答"买了能不能用"，而不只是"官网能不能打开"
+        continue-on-error: true
+        run: ./scripts/check_nodes.ps1
+
       - name: 落地页品牌核对（能打开 ≠ 打开的是这家）
         shell: pwsh
         continue-on-error: true

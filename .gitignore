@@ -6,3 +6,6 @@ Thumbs.db
 
 # 品牌核对报告（每次现算）
 brand-report.md
+
+# 节点实测报告（每次现算，含本机订阅信息）
+node-report.md
