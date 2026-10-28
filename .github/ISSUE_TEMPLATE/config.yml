@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 数据怎么改
+    url: https://github.com/yanwaiyue-name/airport-nav/blob/main/CONTRIBUTING.md
+    about: 所有内容都在 data/*.json，README 是生成的

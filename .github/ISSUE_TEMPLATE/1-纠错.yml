@@ -1,0 +1,33 @@
+name: 入口失效或信息有误
+description: 某个机场打不开了、价格变了、备注不对
+title: "[纠错] "
+labels: ["纠错"]
+body:
+  - type: input
+    id: which
+    attributes:
+      label: 哪个机场
+      placeholder: 例：一元机场
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 现在的情况
+      description: 具体说明，比如"官网 404""价格已从 4 元涨到 6 元""入口跳转到了别的站"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 你怎么确认的
+      description: 截图、访问时间、跳转后的落地页等。没有依据的修改不收。
+    validations:
+      required: true
+  - type: checkboxes
+    id: check
+    attributes:
+      label: 确认
+      options:
+        - label: 我是自己实际访问后发现的，不是转述别人的说法
+          required: true
