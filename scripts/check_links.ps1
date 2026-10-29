@@ -63,6 +63,7 @@ if (-not $KeepProxy) {
 # 确定性 JSON 序列化（见 lib-json.ps1）。PS 5.1 与 PS 7 的 ConvertTo-Json 格式不同，本地与 CI 必须用同一套写法，
 # 否则每次本地预检都会把整个 data/airports.json 重排一遍。
 . (Join-Path $PSScriptRoot 'lib-json.ps1')
+. (Join-Path $PSScriptRoot 'lib-status.ps1')
 
 function New-ProbeClient {
     param([int]$Timeout, [string]$Proxy)
@@ -233,7 +234,7 @@ if ($ProxyUrl) {
 }
 
 $rows = New-Object System.Collections.Generic.List[string]
-$ok = 0; $unknown = 0; $dead = 0
+$ok = 0; $restricted = 0; $unknown = 0; $dead = 0
 
 try {
     foreach ($a in $airports) {
@@ -268,7 +269,10 @@ try {
 
         if ($best) {
             $oldEntry = [string]$a.entry_url
-            $a.status = 'ok'
+            # 有响应不等于"还能用"：403/429 这类只说明有服务器在拦你。
+            # 直接写进数据层（restricted），而不是留着 ok 让展示层去猜——
+            # 否则任何读 JSON 的脚本都会把防护页当成健康站。
+            $a.status = if (Test-RestrictedCode ([int]$best.Code)) { 'restricted' } else { 'ok' }
             $a.http_code = $best.Code
             $a.final_url = $best.Final
             # 记录本轮是通过哪条通道探测到的，便于区分「墙内直连可达」与「仅墙外可达」。
@@ -338,6 +342,7 @@ try {
 
         switch ($a.status) {
             'ok' { $ok++ }
+            'restricted' { $restricted++ }
             'dead' { $dead++ }
             default { $unknown++ }
         }
@@ -356,14 +361,14 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 # data/*.json 沿用 4 空格缩进，与人手编辑时的习惯一致
 [System.IO.File]::WriteAllText($DataPath, (ConvertTo-StableJson -Value $airports -Indent 4), $utf8)
 
-$line = "体检完成（{0} / {1}）：存活 {2} 家，未验证 {3} 家，失效 {4} 家 -> {5}" -f $today, $Runner, $ok, $unknown, $dead, $DataPath
+$line = "体检完成（{0} / {1}）：正常 {2} 家，受限 {3} 家，未验证 {4} 家，失效 {5} 家 -> {6}" -f $today, $Runner, $ok, $restricted, $unknown, $dead, $DataPath
 Write-Host $line
 
 if ($env:GITHUB_STEP_SUMMARY) {
     $md = @()
     $md += "### 机场入口体检（$today / $Runner）"
     $md += ''
-    $md += "存活 **$ok** 家 / 未验证 **$unknown** 家 / 失效 **$dead** 家"
+    $md += "正常 **$ok** 家 / 受限 **$restricted** 家 / 未验证 **$unknown** 家 / 失效 **$dead** 家"
     $md += ''
     $md += '| 机场 | 档位 | 状态 | HTTP | 入口 |'
     $md += '|---|---|---|---|---|'

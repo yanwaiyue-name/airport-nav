@@ -19,7 +19,8 @@ window.NAV_DATA = {
       "final_url": "https://666.subef.top/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -42,50 +43,8 @@ window.NAV_DATA = {
       "final_url": "https://edu.360buyimg.men/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
-    },
-    {
-      "tier": "低价",
-      "name": "一元机场",
-      "entry_url": "https://xn--4gq62f.com",
-      "backup_domains": [
-        "https://www.yiyuanjichang.com",
-        "https://github.com/yiyuan-jichang/dizhi"
-      ],
-      "price": "低价月付档（以官网为准）",
-      "traffic": "以官网为准",
-      "line": "未知",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "GitHub 防失联地址发布页模式开创者（dizhi 仓库约 3k Star）。入口域名常换，体检自动跟随跳转。两个备用入口均已实测可达。",
-      "source": "yiyuan-jichang/dizhi（官方）、muyeqingfeng/VPN",
-      "status": "ok",
-      "http_code": 403,
-      "final_url": "https://xn--1-q07a56pdss.org/",
-      "last_checked": "2026-10-28",
-      "checked_from": "github-actions",
-      "reachable_via": "direct"
-    },
-    {
-      "tier": "低价",
-      "name": "一分机场",
-      "entry_url": "https://xn--4gqx1hgtfdmt.com",
-      "backup_domains": [],
-      "price": "2元/100G/月；6元/1000G/月",
-      "traffic": "100G/月",
-      "line": "直连",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "直连机场，速度不错，适合下载/备用；新疆地区可用。来源仓库评价：稳定性、解锁一般。",
-      "source": "kamibababa/cheapairport、KaWaIDeSuNe/dijiajichang",
-      "status": "ok",
-      "http_code": 403,
-      "final_url": "https://xn--4gqx1hgtfdmt.com/",
-      "last_checked": "2026-10-28",
-      "checked_from": "github-actions",
-      "reachable_via": "proxy"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -107,7 +66,8 @@ window.NAV_DATA = {
       "final_url": "https://smjcdh.com/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -127,27 +87,8 @@ window.NAV_DATA = {
       "final_url": "https://xn--tfrza853d44tvst.xyz/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "proxy"
-    },
-    {
-      "tier": "低价",
-      "name": "吹雪云",
-      "entry_url": "https://xn--9kqs1lo79d.com",
-      "backup_domains": [],
-      "price": "4元/512G/月",
-      "traffic": "512G/月",
-      "line": "直连",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "新机场，注册送 7 日 128G 套餐，三网速度口碑不错；新店注意跑路风险，建议先月付。",
-      "source": "KaWaIDeSuNe/dijiajichang",
-      "status": "ok",
-      "http_code": 403,
-      "final_url": "https://xn--9kqs1lo79d.com/",
-      "last_checked": "2026-10-28",
-      "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "proxy",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -167,7 +108,8 @@ window.NAV_DATA = {
       "final_url": "https://app.zhizi8.com/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -187,7 +129,8 @@ window.NAV_DATA = {
       "final_url": "https://vip.taoqitu.pro/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -209,7 +152,8 @@ window.NAV_DATA = {
       "final_url": "https://666.66jc.top/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -229,7 +173,8 @@ window.NAV_DATA = {
       "final_url": "https://mly518.com/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "proxy"
+      "reachable_via": "proxy",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -249,7 +194,8 @@ window.NAV_DATA = {
       "final_url": "https://xn--9kqz23b19z.com/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "proxy"
+      "reachable_via": "proxy",
+      "effective_status": "ok"
     },
     {
       "tier": "低价",
@@ -269,7 +215,74 @@ window.NAV_DATA = {
       "final_url": "https://301.xn--h5qy75o.vip/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
+    },
+    {
+      "tier": "低价",
+      "name": "一元机场",
+      "entry_url": "https://xn--4gq62f.com",
+      "backup_domains": [
+        "https://www.yiyuanjichang.com",
+        "https://github.com/yiyuan-jichang/dizhi"
+      ],
+      "price": "低价月付档（以官网为准）",
+      "traffic": "以官网为准",
+      "line": "未知",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "GitHub 防失联地址发布页模式开创者（dizhi 仓库约 3k Star）。入口域名常换，体检自动跟随跳转。两个备用入口均已实测可达。",
+      "source": "yiyuan-jichang/dizhi（官方）、muyeqingfeng/VPN",
+      "status": "restricted",
+      "http_code": 403,
+      "final_url": "https://xn--1-q07a56pdss.org/",
+      "last_checked": "2026-10-28",
+      "checked_from": "github-actions",
+      "reachable_via": "direct",
+      "effective_status": "restricted"
+    },
+    {
+      "tier": "低价",
+      "name": "一分机场",
+      "entry_url": "https://xn--4gqx1hgtfdmt.com",
+      "backup_domains": [],
+      "price": "2元/100G/月；6元/1000G/月",
+      "traffic": "100G/月",
+      "line": "直连",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "直连机场，速度不错，适合下载/备用；新疆地区可用。来源仓库评价：稳定性、解锁一般。",
+      "source": "kamibababa/cheapairport、KaWaIDeSuNe/dijiajichang",
+      "status": "restricted",
+      "http_code": 403,
+      "final_url": "https://xn--4gqx1hgtfdmt.com/",
+      "last_checked": "2026-10-28",
+      "checked_from": "github-actions",
+      "reachable_via": "proxy",
+      "effective_status": "restricted"
+    },
+    {
+      "tier": "低价",
+      "name": "吹雪云",
+      "entry_url": "https://xn--9kqs1lo79d.com",
+      "backup_domains": [],
+      "price": "4元/512G/月",
+      "traffic": "512G/月",
+      "line": "直连",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "新机场，注册送 7 日 128G 套餐，三网速度口碑不错；新店注意跑路风险，建议先月付。",
+      "source": "KaWaIDeSuNe/dijiajichang",
+      "status": "restricted",
+      "http_code": 403,
+      "final_url": "https://xn--9kqs1lo79d.com/",
+      "last_checked": "2026-10-28",
+      "checked_from": "github-actions",
+      "reachable_via": "direct",
+      "effective_status": "restricted"
     },
     {
       "tier": "低价",
@@ -288,29 +301,8 @@ window.NAV_DATA = {
       "http_code": 0,
       "final_url": null,
       "last_checked": "2026-10-28",
-      "checked_from": "github-actions"
-    },
-    {
-      "tier": "性价比",
-      "name": "KTM Cloud",
-      "entry_url": "https://ktmcloud.vip",
-      "backup_domains": [
-        "https://ktmcloud.net"
-      ],
-      "price": "14元/2048G/月（约 0.007 元/GB）",
-      "traffic": "2048G/月",
-      "line": "中转",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "中转机场里单位流量价格很便宜的档位，节点较多，速度中等；三个官网域名互为备用。适合大流量用户。",
-      "source": "KaWaIDeSuNe/xingjiabijichang",
-      "status": "ok",
-      "http_code": 403,
-      "final_url": "https://ktmcloud.vip/",
-      "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "proxy"
+      "effective_status": "dead"
     },
     {
       "tier": "性价比",
@@ -330,7 +322,8 @@ window.NAV_DATA = {
       "final_url": "https://www.z1z1.xyz/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
     },
     {
       "tier": "性价比",
@@ -350,7 +343,8 @@ window.NAV_DATA = {
       "final_url": "https://www.xn--qprx60h.site/",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "proxy"
+      "reachable_via": "proxy",
+      "effective_status": "ok"
     },
     {
       "tier": "性价比",
@@ -372,7 +366,31 @@ window.NAV_DATA = {
       "final_url": "https://a22.qytaff01.cc/verify?next=%2F",
       "last_checked": "2026-10-28",
       "checked_from": "github-actions",
-      "reachable_via": "direct"
+      "reachable_via": "direct",
+      "effective_status": "ok"
+    },
+    {
+      "tier": "性价比",
+      "name": "KTM Cloud",
+      "entry_url": "https://ktmcloud.vip",
+      "backup_domains": [
+        "https://ktmcloud.net"
+      ],
+      "price": "14元/2048G/月（约 0.007 元/GB）",
+      "traffic": "2048G/月",
+      "line": "中转",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "中转机场里单位流量价格很便宜的档位，节点较多，速度中等；三个官网域名互为备用。适合大流量用户。",
+      "source": "KaWaIDeSuNe/xingjiabijichang",
+      "status": "restricted",
+      "http_code": 403,
+      "final_url": "https://ktmcloud.vip/",
+      "last_checked": "2026-10-28",
+      "checked_from": "github-actions",
+      "reachable_via": "proxy",
+      "effective_status": "restricted"
     }
   ],
   "tools": [
@@ -504,5 +522,22 @@ window.NAV_DATA = {
       "notes": "想自己挖新机场/新评测仓库时从这里开始，按 Star 和最近更新排序筛。",
       "last_verified": "2026-10-25"
     }
+  ],
+  "restricted_codes": [
+    401,
+    402,
+    403,
+    405,
+    407,
+    429,
+    451,
+    503,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526,
+    530
   ]
 };

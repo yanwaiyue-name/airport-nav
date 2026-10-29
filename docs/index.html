@@ -48,6 +48,7 @@
   td a:hover { text-decoration: underline; }
   .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
   .badge.ok { background: rgba(34,197,94,.15); color: var(--ok); }
+  .badge.warn { background: rgba(249,115,22,.18); color: #fb923c; }
   .badge.unknown { background: rgba(234,179,8,.15); color: var(--unknown); }
   .badge.dead { background: rgba(239,68,68,.15); color: var(--dead); }
   .badge.tier { background: rgba(56,189,248,.12); color: var(--accent); }
@@ -95,6 +96,7 @@
     <span class="sep"></span>
     <button data-s="all" class="active">全部状态</button>
     <button data-s="ok">✅ 存活</button>
+    <button data-s="restricted">⚠️ 受限</button>
     <button data-s="unknown">❓ 未验证</button>
     <button data-s="dead">❌ 失效</button>
   </div>
@@ -156,7 +158,7 @@
   </footer>
 </div>
 
-<script src="data.js?v=55b04a1f"></script>
+<script src="data.js?v=3180e33f"></script>
 <script>
 (function () {
   var data = window.NAV_DATA || { airports: [], tools: [], resources: [], generated: '' };
@@ -167,8 +169,12 @@
 
   document.getElementById('updated').textContent =
     '数据更新于 ' + (data.generated || '未知') +
-    ' · 共 ' + data.airports.length + ' 家 · 最近体检存活 ' +
-    data.airports.filter(function (a) { return a.status === 'ok'; }).length + ' 家';
+    ' · 共 ' + data.airports.length + ' 家 · 正常响应 ' +
+    data.airports.filter(function (a) { return eff(a) === 'ok'; }).length + ' 家' +
+    (function () {
+      var r = data.airports.filter(function (a) { return eff(a) === 'restricted'; }).length;
+      return r ? ' · 受限 ' + r + ' 家' : '';
+    })();
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -193,9 +199,28 @@
     return '<br><span class="notes" title="墙内直连无响应，走代理才探测到">🌐 仅墙外可达</span>';
   }
 
+  // 有效状态由 render.ps1 算好写进 effective_status，与 README 同一套口径。
+  // 三重兜底：effective_status（新）-> status + 受限码判定（老）-> unknown。
+  // 只退回 status 是不够的：老数据是 status=ok + http_code=403，
+  // 那种情况必须仍然判成 restricted，否则网页会把它显示成 ✅存活(403)。
+  function eff(a) {
+    if (a.effective_status) return a.effective_status;
+    var s = a.status || 'unknown';
+    if (s === 'dead' || s === 'restricted' || s === 'unknown') return s;
+    var codes = data.restricted_codes || [];
+    var c = parseInt(a.http_code, 10);
+    if (!isNaN(c) && codes.indexOf(c) !== -1) return 'restricted';
+    return 'ok';
+  }
+
   function badge(a) {
-    if (a.status === 'ok') return '<span class="badge ok">✅存活' + (a.http_code ? '(' + a.http_code + ')' : '') + '</span>' + viaNote(a) + jumpNote(a);
-    if (a.status === 'dead') return '<span class="badge dead">❌失效</span>';
+    var s = eff(a);
+    var code = a.http_code ? '(' + a.http_code + ')' : '';
+    if (s === 'ok') return '<span class="badge ok">✅存活' + code + '</span>' + viaNote(a) + jumpNote(a);
+    if (s === 'restricted') {
+      return '<span class="badge warn" title="服务器有响应但拒绝服务：通常是防护页或已停售">⚠️受限' + code + '</span>' + viaNote(a) + jumpNote(a);
+    }
+    if (s === 'dead') return '<span class="badge dead">❌失效</span>';
     return '<span class="badge unknown">❓未验证</span>';
   }
 
@@ -203,7 +228,7 @@
     var kw = (q.value || '').trim().toLowerCase();
     var rows = data.airports.filter(function (a) {
       if (tierFilter !== 'all' && a.tier !== tierFilter) return false;
-      if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+      if (statusFilter !== 'all' && eff(a) !== statusFilter) return false;
       if (!kw) return true;
       var hay = [a.name, a.tier, a.line, a.price, a.traffic, a.notes, a.source].join(' ').toLowerCase();
       return hay.indexOf(kw) !== -1;

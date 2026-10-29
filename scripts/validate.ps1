@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 airport-nav 数据与脚本预检（零外部依赖，CI 与本地都能跑）
 
@@ -76,7 +76,9 @@ function Test-RequiredFields($Item, [string]$Where, [string[]]$Fields) {
 $airports = Import-DataFile 'data/airports.json' 'airports.json'
 $seenNames = @{}
 $tierAllowed = @('低价', '性价比')
-$statusAllowed = @('ok', 'unknown', 'dead')
+# 引入统一状态库：允许值、受限码表都以 lib-status.ps1 为准
+. (Join-Path $PSScriptRoot 'lib-status.ps1')
+$statusAllowed = $script:AllowedStatus
 
 $idx = 0
 foreach ($a in $airports) {
@@ -97,7 +99,12 @@ foreach ($a in $airports) {
         Add-Err ("{0}：entry_url 不是 http(s) 链接 -> {1}" -f $label, $a.entry_url)
     }
     if ($a.status -and ($statusAllowed -notcontains [string]$a.status)) {
-        Add-Err ("{0}：status 只能是 ok / unknown / dead，实际是 '{1}'" -f $label, $a.status)
+        Add-Err ("{0}：status 只能是 {1}，实际是 '{2}'" -f $label, ($statusAllowed -join ' / '), $a.status)
+    }
+    # 一致性检查：标了 ok 但 HTTP 码是受限类的，属于数据没跟上口径（旧数据或手改漏了），
+    # 展示层仍会按"受限"渲染，但这里要提醒把它归位。
+    if ([string]$a.status -eq 'ok' -and $a.http_code -and (Test-RestrictedCode ([int]$a.http_code))) {
+        Add-Warn ("{0}：status=ok 但 http_code={1} 属于受限类，建议改成 restricted（展示层已按受限处理）" -f $label, $a.http_code)
     }
 
     # reachable_via 记录入口是通过哪条通道探测到的。

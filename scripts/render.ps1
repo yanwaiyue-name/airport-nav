@@ -16,6 +16,7 @@ $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $NL = [string][char]10
 . (Join-Path $PSScriptRoot 'lib-json.ps1')
+. (Join-Path $PSScriptRoot 'lib-status.ps1')
 
 function Get-OrdinalKey {
     # 把任意字符串按 UTF-16 码位展开成定长十六进制，得到与区域设置无关的可排序键
@@ -56,12 +57,15 @@ function Get-NodeNote($a) {
 }
 
 $tierOrder   = @{ '低价' = 0; '性价比' = 1 }
-$statusOrder = @{ ok = 0; unknown = 1; dead = 2 }
+# 排序按"有效状态"：正常的排前面，受限次之，未验证再次，失效最后。
+$statusOrder = @{ ok = 0; restricted = 1; unknown = 2; dead = 3 }
 
 $sorted = @($airports | Sort-Object -Property @{Expression={
     # 排序键全部转成 ASCII：Sort-Object 的字符串比较受系统区域设置影响（zh-CN 与 en-US 结果不同），
     # 直接用中文名排序会让 CI 与本地生成出不同的行序，每次重跑都产生假 diff。
-    '{0}|{1}|{2}' -f $tierOrder[[string]$_.tier], $statusOrder[[string]$_.status], (Get-OrdinalKey ([string]$_.name))
+    # 用有效状态排序：数据里 status 可能还是 ok，但 403 的实际意义是受限，不能和正常站混排
+    $effSort = Get-EffectiveStatus ([string]$_.status) $_.http_code
+    '{0}|{1}|{2}' -f $tierOrder[[string]$_.tier], $statusOrder[$effSort], (Get-OrdinalKey ([string]$_.name))
 }})
 if ($sorted.Count -lt $airports.Count) { throw "排序后条数不一致：$($sorted.Count) / $($airports.Count)" }
 
@@ -74,22 +78,21 @@ if ($unmatched.Count -gt 0) {
 }
 
 $today = if ($sorted.Count -gt 0 -and $sorted[0].last_checked) { [string]$sorted[0].last_checked } else { '未知' }
-# 计数口径与 Badge 保持一致：403/429 这类只证明「有服务器响应」，不算 ✅ 存活。
-$restrictedCodes = @(401, 403, 405, 429, 451, 503, 521, 522, 526)
-$okCount = @($sorted | Where-Object { $_.status -eq 'ok' -and ($restrictedCodes -notcontains [int]$_.http_code) }).Count
-$restrictedCount = @($sorted | Where-Object { $_.status -eq 'ok' -and ($restrictedCodes -contains [int]$_.http_code) }).Count
+# 口径统一走 scripts/lib-status.ps1，避免"徽章一套、计数另一套"。
+$okCount         = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'ok' }).Count
+$restrictedCount = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'restricted' }).Count
 
 function Badge([string]$s, $code) {
-    # 403 / 429 / 521 这类响应只能证明「有服务器在拦你」，证明不了站点还能注册、还能买。
-    # 很多跑路机场会留一个 Cloudflare 防护页，照样返回 403。所以把它单独标成「受限」，
-    # 不要和 200 的站点混在同一个 ✅ 里 —— 那会让读者以为两者一样可用。
-    $restricted = @(401, 403, 405, 429, 451, 503, 521, 522, 526)
-    if ($s -eq 'ok') {
-        if ($code -and ($restricted -contains [int]$code)) { return "⚠️受限($code)" }
+    # 判定逻辑在 lib-status.ps1，这里只负责画。
+    # 403/429 这类响应只能证明「有服务器在拦你」，证明不了站点还能注册、还能买；
+    # 很多跑路机场会留一个 Cloudflare 防护页，照样返回 403。
+    $eff = Get-EffectiveStatus $s $code
+    if ($eff -eq 'ok') {
         if ($code) { return "✅存活($code)" }
         return "✅存活"
     }
-    if ($s -eq 'dead') { return "❌失效" }
+    if ($eff -eq 'restricted') { return "⚠️受限($code)" }
+    if ($eff -eq 'dead') { return "❌失效" }
     return "❓未验证"
 }
 
@@ -249,7 +252,24 @@ function ConvertTo-Lf([string]$Text) {
 
 [System.IO.File]::WriteAllText((Join-Path $root 'README.md'), (ConvertTo-Lf $md), $utf8)
 
-$nav = [ordered]@{ generated = $today; airports = $sorted; tools = $tools; resources = $resources }
+# 网页端也要按同一套口径判断"受限"，否则会出现 README 显示 ⚠️受限、
+# 而网页仍显示 ✅存活 的自相矛盾。把码表和每家机场的有效状态一起注入，
+# 前端不再自己猜。
+$apForWeb = foreach ($a in $sorted) {
+    $eff = Get-EffectiveStatus ([string]$a.status) $a.http_code
+    $copy = [ordered]@{}
+    foreach ($p in $a.PSObject.Properties) { $copy[$p.Name] = $p.Value }
+    $copy['effective_status'] = $eff
+    [pscustomobject]$copy
+}
+
+$nav = [ordered]@{
+    generated        = $today
+    airports         = @($apForWeb)
+    tools            = $tools
+    resources        = $resources
+    restricted_codes = $script:RestrictedHttpCodes
+}
 $navBody = 'window.NAV_DATA = ' + (ConvertTo-StableJson -Value $nav) + ';'
 [System.IO.File]::WriteAllText((Join-Path $root 'docs/data.js'), (ConvertTo-Lf $navBody), $utf8)
 
