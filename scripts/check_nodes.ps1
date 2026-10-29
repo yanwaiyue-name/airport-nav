@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   节点实测：从本地 Clash 订阅里取出节点，逐个做 TCP 握手探测，输出存活率与延迟。
@@ -31,7 +31,12 @@
 param(
     [string]$SubFile,
     [int]$TimeoutMs = 5000,
-    [string]$OutFile
+    [string]$OutFile,
+    # 把结果按机场写回 data/nodes.json，让 README 的「节点实测」列能显示出来。
+    # CI 上没有订阅，所以这个文件只由本地手动跑产生；CI 只读、不覆盖。
+    [switch]$WriteData,
+    # 结果记到哪个机场名下（按 sources 里的机场 key 或名称匹配 data/airports.json）
+    [string]$Airport
 )
 
 $ErrorActionPreference = 'Stop'
@@ -244,6 +249,31 @@ foreach ($r in ($results | Sort-Object @{Expression={ if ($_.Applicable -ne 'tcp
 $out = $md -join [string][char]10
 Write-Host $out
 [System.IO.File]::WriteAllText($OutFile, $out, (New-Object System.Text.UTF8Encoding($false)))
+
+# 把「节点级」结论落进 data/nodes.json：入口可达（check_links）和节点可用（这里）是两件事，
+# 用户真正关心的是后者。CI 没有订阅，跑不了这一步，所以文件只由本机手动生成，
+# 体检 workflow 只读它、不重写它。
+if ($WriteData) {
+    $nodesPath = Join-Path $root 'data/nodes.json'
+    $store = @{ updated = (Get-Date).ToString('yyyy-MM-dd'); airports = @() }
+    if (Test-Path -LiteralPath $nodesPath) {
+        try { $store = Get-Content -LiteralPath $nodesPath -Raw -Encoding UTF8 | ConvertFrom-Json } catch { }
+    }
+    $key = if ($Airport) { $Airport } else { 'default' }
+    $entry = [pscustomobject]@{
+        airport       = $key
+        checked       = (Get-Date).ToString('yyyy-MM-dd')
+        method        = ('TCP handshake (' + $TimeoutMs + 'ms)')
+        probeable     = $probeable.Count
+        alive         = $alive.Count
+        alive_percent = $rate
+        skipped       = $skipped.Count
+    }
+    $kept = @(@($store.airports) | Where-Object { $_ -and $_.airport -ne $key })
+    $store.airports = [object[]](@($kept) + @($entry))
+    $store | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $nodesPath -Encoding UTF8
+    Write-Host ('已写入 ' + $nodesPath + '（' + $key + '：' + $alive.Count + '/' + $probeable.Count + '）')
+}
 
 if ($env:GITHUB_STEP_SUMMARY) {
     Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value $out -Encoding utf8

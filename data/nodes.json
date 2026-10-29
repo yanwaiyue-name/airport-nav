@@ -1,0 +1,14 @@
+{
+  "updated": "2026-10-29",
+  "airports": [
+    {
+      "airport": "三毛机场",
+      "checked": "2026-10-29",
+      "method": "TCP handshake (3000ms)",
+      "probeable": 24,
+      "alive": 18,
+      "alive_percent": 75.0,
+      "skipped": 10
+    }
+  ]
+}

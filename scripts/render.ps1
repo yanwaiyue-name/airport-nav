@@ -31,6 +31,30 @@ $airports   = Get-Content -LiteralPath (Join-Path $root 'data/airports.json')   
 $tools      = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/tools.json')      -Raw -Encoding UTF8 | ConvertFrom-Json)
 $resources  = [object[]](Get-Content -LiteralPath (Join-Path $root 'data/resources.json')  -Raw -Encoding UTF8 | ConvertFrom-Json)
 
+# 节点实测结果（可选）：由本机手动跑 check_nodes.ps1 -WriteData 生成。
+# CI 上没有订阅跑不了这一步，所以文件缺失是正常状态，不能报错。
+$nodePath = Join-Path $root 'data/nodes.json'
+$nodeMap = @{}
+if (Test-Path -LiteralPath $nodePath) {
+    try {
+        $nodeStore = Get-Content -LiteralPath $nodePath -Raw -Encoding UTF8 | ConvertFrom-Json
+        foreach ($n in @($nodeStore.airports)) {
+            if ($n -and $n.airport) { $nodeMap[[string]$n.airport] = $n }
+        }
+    } catch {
+        Write-Warning ('data/nodes.json 解析失败，节点实测列将留空：' + $_.Exception.Message)
+    }
+}
+
+function Get-NodeNote($a) {
+    # 入口能不能打开 ≠ 买了能不能用。有实测结果就显示，没有就留空 —— 不猜。
+    $k = [string]$a.name
+    if (-not $nodeMap.ContainsKey($k)) { return '' }
+    $n = $nodeMap[$k]
+    if (-not $n.probeable) { return '' }
+    return ('<br>📶 节点 {0}/{1}' -f $n.alive, $n.probeable)
+}
+
 $tierOrder   = @{ '低价' = 0; '性价比' = 1 }
 $statusOrder = @{ ok = 0; unknown = 1; dead = 2 }
 
@@ -50,12 +74,23 @@ if ($unmatched.Count -gt 0) {
 }
 
 $today = if ($sorted.Count -gt 0 -and $sorted[0].last_checked) { [string]$sorted[0].last_checked } else { '未知' }
-$okCount = @($sorted | Where-Object { $_.status -eq 'ok' }).Count
+# 计数口径与 Badge 保持一致：403/429 这类只证明「有服务器响应」，不算 ✅ 存活。
+$restrictedCodes = @(401, 403, 405, 429, 451, 503, 521, 522, 526)
+$okCount = @($sorted | Where-Object { $_.status -eq 'ok' -and ($restrictedCodes -notcontains [int]$_.http_code) }).Count
+$restrictedCount = @($sorted | Where-Object { $_.status -eq 'ok' -and ($restrictedCodes -contains [int]$_.http_code) }).Count
 
 function Badge([string]$s, $code) {
-    if ($s -eq 'ok') { if ($code) { "✅存活($code)" } else { "✅存活" } }
-    elseif ($s -eq 'dead') { "❌失效" }
-    else { "❓未验证" }
+    # 403 / 429 / 521 这类响应只能证明「有服务器在拦你」，证明不了站点还能注册、还能买。
+    # 很多跑路机场会留一个 Cloudflare 防护页，照样返回 403。所以把它单独标成「受限」，
+    # 不要和 200 的站点混在同一个 ✅ 里 —— 那会让读者以为两者一样可用。
+    $restricted = @(401, 403, 405, 429, 451, 503, 521, 522, 526)
+    if ($s -eq 'ok') {
+        if ($code -and ($restricted -contains [int]$code)) { return "⚠️受限($code)" }
+        if ($code) { return "✅存活($code)" }
+        return "✅存活"
+    }
+    if ($s -eq 'dead') { return "❌失效" }
+    return "❓未验证"
 }
 
 function Clean([string]$s) {
@@ -87,7 +122,7 @@ function Make-ApRows($list) {
     $rows = foreach ($a in $list) {
         $bk = @(@($a.backup_domains) | Where-Object { $_ })
         $bkTxt = if ($bk.Count -gt 0) { "[备用×$($bk.Count)]($($bk[0]))" } else { '—' }
-        $st = (Badge ([string]$a.status) $a.http_code) + (Get-ViaNote $a) + (Get-JumpNote $a)
+        $st = (Badge ([string]$a.status) $a.http_code) + (Get-ViaNote $a) + (Get-JumpNote $a) + (Get-NodeNote $a)
         $chk = "{0}({1})" -f $a.last_checked, $a.checked_from
         "| [{0}]({1}) | {2} | {3} | {4} | {5} | {6} | {7} | {8} |" -f `
             $a.name, $a.entry_url, (Clean $a.line), (Clean $a.price), (Clean $a.traffic), $st, $bkTxt, $chk, (Clean $a.notes)
@@ -113,13 +148,21 @@ $template = @'
 
 > 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，优先列出能打开的入口；确认失效的保留 ❌ 标记不删，方便你判断它有没有复活。**
 
-共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家存活（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
+共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家正常响应、**{RESTRICTEDCOUNT}** 家受限（403/防护页）（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
 
 ## 怎么用（3 步）
 
-1. 看下面表格的「状态」列，优先选 ✅ 存活的；
+1. 看下面表格的「状态」列，优先选 ✅ 存活的；⚠️受限的先当"可能已经停售"处理；
 2. 点「名称」进官网，**先买最小周期**（试用/月付）验证速度和稳定性，满意再考虑长周期；
 3. 担心域名被封？点「备用」列——多数机场有官方地址发布页或备用域名。
+
+> ### ⚠️ 先把这件事想清楚：低价机场能看到什么
+>
+> 机场是你的出口，理论上能看到你访问的**域名、时间、流量大小**，部分实现还能看到 DNS 请求和设备特征。HTTPS 保护的是内容，不是"你在访问哪个网站"。
+>
+> 所以：**工作账号、网银、支付、政务、公司内网**这类操作，不要放在低价机场上做。这不是"这家靠不靠谱"的问题，是这个价位模式下本来就不该托付这些事。
+>
+> 收录 ≠ 推荐，也不构成安全背书。本项目只做两件事：记录入口、记录入口现在还能不能打开。
 
 ## 低价机场速查表（月付 ≤10 元）
 
@@ -133,9 +176,13 @@ $template = @'
 |---|---|---|---|---|---|---|---|
 {MIDTABLE}
 
-> **状态说明**：✅存活 = 最近一次检测服务器有响应；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = 连续两轮 GitHub Actions 检测都无响应（单轮失败先降为❓，避免一次抖动误判死链）。检测只代表**入口可达**，不代表速度与实际可用性。状态后面的 <code>→ 域名</code> 表示入口实际跳到了别的域名（换牌、转卖、停放页都会这样），不代表是官方换域名，看到就先在站内确认品牌再付款。<code>🌐 仅墙外可达</code> 表示墙内直连打不开、走代理才探测到——域名很可能被污染，**你自己在国内直接点会连不上**，需要先有一个能用的代理。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。
+> **状态说明**：✅存活 = 最近一次检测服务器正常响应（2xx/3xx）；⚠️受限 = 服务器有响应但返回 403/429/503 等，通常是 Cloudflare 防护页或站点已停售，**不代表服务还能用**，这类站点要格外谨慎；❓未验证 = 本次检测环境无法判定（DNS 污染/被墙），不一定是死链；❌失效 = 连续两轮 GitHub Actions 检测都无响应（单轮失败先降为❓，避免一次抖动误判死链）。检测只代表**入口可达**，不代表速度与实际可用性。状态后面的 <code>→ 域名</code> 表示入口实际跳到了别的域名（换牌、转卖、停放页都会这样），不代表是官方换域名，看到就先在站内确认品牌再付款。<code>🌐 仅墙外可达</code> 表示墙内直连打不开、走代理才探测到——域名很可能被污染，**你自己在国内直接点会连不上**，需要先有一个能用的代理。`最后验证` 列标注检测日期与来源：`github-actions` = 境外 CI 检测，`local` = 本地预检。<code>📶 节点 x/y</code> 表示本机用 TCP 握手实测的节点存活数——入口能打开不等于节点能用，这一列才是"买了能不能上"的参考；它需要本机有订阅，所以只有部分条目会有。
 >
 > **数据来源**：公开评测仓库（[kamibababa/cheapairport](https://github.com/kamibababa/cheapairport)、[KaWaIDeSuNe/dijiajichang](https://github.com/KaWaIDeSuNe/dijiajichang)、[KaWaIDeSuNe/xingjiabijichang](https://github.com/KaWaIDeSuNe/xingjiabijichang) 等）与机场官方发布页。来源链接中的邀请码已全部去除，本项目与所列机场无利益关系。
+>
+> **关于"口碑"两个字的口径**：表里写"速度口碑不错""解锁好""三网推荐"这类话，**全部转述自上面的公开评测仓库，不是本项目实测**。本项目只实测两件事：入口能不能打开（`check_links.ps1`）、以及本机有订阅时的节点能不能握手（`check_nodes.ps1`，结果见 `📶` 标记）。速度、晚高峰表现、解锁能力、是否超售，本项目**没有测、也无法替你测**——不同地区、不同运营商差异极大，唯一可靠的验证方式是自己买最小周期试。
+>
+> **关于跳转域名**：入口跳到别的域名，可能是官方迁移、可能是转卖、也可能是停放页。本项目只负责把"跳到了哪里"记下来，**不判断那是不是官方**。付款前请在站内确认品牌名、付款主体和客服渠道是否一致。
 
 ## 客户端与工具速查
 
@@ -189,7 +236,7 @@ $template = @'
 - 请遵守你所在地区的法律法规。
 '@
 
-$md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
+$md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{RESTRICTEDCOUNT}', "$restrictedCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
 
 # 输出统一成 LF。
 # 拼出来的是「文件中 here-string 模板自带的换行（Windows 签出后是 CRLF）＋ 脚本用 $NL 拼的行（LF）」，
