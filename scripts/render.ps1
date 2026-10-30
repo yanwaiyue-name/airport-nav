@@ -150,12 +150,18 @@ $template = @'
 # airport-nav · 机场导航
 
 > 📍 **本仓库是 GitHub 的镜像。** 每周体检与页面部署只在 GitHub Actions 运行，
-> 因此**下面表格的「最后验证」日期在镜像上不会自动更新**，最新数据请见
-> [在线导航](https://yanwaiyue-name.github.io/airport-nav/)。
+> 因此**下面表格的「最后验证」日期在镜像上不会自动更新**。
 
 > 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，优先列出能打开的入口；确认失效的保留 ❌ 标记不删，方便你判断它有没有复活。**
 
-共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家正常响应、**{RESTRICTEDCOUNT}** 家受限（403/防护页）（{TODAY}）。可搜索的网页版见：https://yanwaiyue-name.github.io/airport-nav/
+共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家正常响应、**{RESTRICTEDCOUNT}** 家受限（403/防护页）（{TODAY}）。
+
+**可搜索的网页版：**
+
+| 入口 | 地址 | 说明 |
+|---|---|---|
+| **站内版**（国内推荐） | [docs/index.html](docs/index.html) | 不依赖外部托管，点开即用 |
+| GitHub Pages | https://yanwaiyue-name.github.io/airport-nav/ | 界面相同，国内可能较慢 |
 
 ## 怎么用（3 步）
 
