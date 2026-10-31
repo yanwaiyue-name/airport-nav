@@ -66,18 +66,20 @@
 
 ## 客户端与工具速查
 
-| 名称 | 类别 | 平台 | 说明 |
-|---|---|---|---|
-| [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) | 客户端 | Windows / macOS / Linux | 目前最主流的 Clash 图形客户端，订阅管理、规则、界面都成熟 |
-| [v2rayN](https://github.com/2dust/v2rayN) | 客户端 | Windows | 老牌 Windows 客户端，支持 Xray / sing-box 多内核 |
-| [FlClash](https://github.com/chen08209/FlClash) | 客户端 | Windows / macOS / Linux / Android | 全平台开源 Clash 客户端，界面现代 |
-| [ClashMetaForAndroid](https://github.com/MetaCubeX/ClashMetaForAndroid) | 客户端 | Android | MetaCubeX 官方安卓客户端 |
-| [sing-box](https://github.com/SagerNet/sing-box) | 客户端 | 全平台（内核） | 新兴通用代理内核，大量新客户端基于它开发 |
-| [Hiddify](https://github.com/hiddify/hiddify-app) | 客户端 | Windows / macOS / Linux / Android / iOS | 对新手友好的一站式客户端，粘贴订阅即可用 |
-| [Karing](https://github.com/KaringX/karing) | 客户端 | 全平台 | sing-box 系多合一客户端，中文圈常用 |
-| [Shadowrocket（小火箭）](https://apps.apple.com/app/shadowrocket/id932747118) | 客户端 | iOS | iOS 端经典客户端，App Store 付费购买 |
-| [subconverter](https://github.com/tindy2013/subconverter) | 订阅·转换工具 | 自部署服务/内核 | 老牌订阅格式转换后端（17k+ Star），把各家机场订阅互转为 Clash/sing-box 等格式，可自部署 |
-| [Sub-Store](https://github.com/sub-store-org/Sub-Store) | 订阅·转换工具 | 全平台（前端 + 后端） | 订阅全功能管理工具（10k+ Star，活跃维护）：转换、过滤、重命名、合并、脚本处理 |
+> 💡 **新手推荐**：Windows 用 Clash Verge Rev，iOS 用 Shadowrocket，Android 用 ClashMetaForAndroid。
+
+| 名称 | 推荐指数 | 适合人群 | 平台 | 说明 |
+|---|---|---|---|---|
+| [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) | ⭐⭐⭐⭐⭐ | 新手首选 | Windows / macOS / Linux | 目前最主流的 Clash 图形客户端，订阅管理、规则、界面都成熟 |
+| [v2rayN](https://github.com/2dust/v2rayN) | ⭐⭐⭐⭐ | Windows 老用户 | Windows | 老牌 Windows 客户端，支持 Xray / sing-box 多内核 |
+| [Shadowrocket（小火箭）](https://apps.apple.com/app/shadowrocket/id932747118) | ⭐⭐⭐⭐⭐ | iOS 用户必选 | iOS | iOS 端经典客户端，App Store 付费购买（约 $3） |
+| [ClashMetaForAndroid](https://github.com/MetaCubeX/ClashMetaForAndroid) | ⭐⭐⭐⭐⭐ | Android 用户 | Android | MetaCubeX 官方安卓客户端 |
+| [FlClash](https://github.com/chen08209/FlClash) | ⭐⭐⭐⭐ | 追求新界面 | 全平台 | 全平台开源 Clash 客户端，界面现代 |
+| [Hiddify](https://github.com/hiddify/hiddify-app) | ⭐⭐⭐⭐ | 极简用户 | 全平台 | 对新手友好的一站式客户端，粘贴订阅即可用 |
+| [Karing](https://github.com/KaringX/karing) | ⭐⭐⭐⭐ | 进阶用户 | 全平台 | sing-box 系多合一客户端，中文圈常用 |
+| [sing-box](https://github.com/SagerNet/sing-box) | ⭐⭐⭐ | 开发者 | 全平台（内核） | 新兴通用代理内核，大量新客户端基于它开发 |
+| [subconverter](https://github.com/tindy2013/subconverter) | ⭐⭐⭐ | 高级用户 | 自部署服务 | 老牌订阅格式转换后端（17k+ Star），把各家机场订阅互转为 Clash/sing-box 等格式 |
+| [Sub-Store](https://github.com/sub-store-org/Sub-Store) | ⭐⭐⭐⭐ | 多订阅管理 | 全平台 | 订阅全功能管理工具（10k+ Star）：转换、过滤、重命名、合并、脚本处理 |
 
 > 各客户端的**官方下载直链**（按电脑架构自动选版本，47 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
 
