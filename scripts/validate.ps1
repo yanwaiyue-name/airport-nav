@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 airport-nav 数据与脚本预检（零外部依赖，CI 与本地都能跑）
 

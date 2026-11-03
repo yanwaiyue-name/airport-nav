@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   节点实测：从本地 Clash 订阅里取出节点，逐个做 TCP 握手探测，输出存活率与延迟。

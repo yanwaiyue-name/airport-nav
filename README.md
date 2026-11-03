@@ -7,6 +7,14 @@
 
 共收录 **14** 家低价机场 + **4** 家性价比机场，最近一次体检 **12** 家正常响应、**4** 家受限（403/防护页）（2026-10-31）。
 
+## ⚠️ 使用前必读：低价机场能看到什么
+
+> 机场是你的出口，理论上能看到你访问的**域名、时间、流量大小**，部分实现还能看到 DNS 请求和设备特征。HTTPS 保护的是内容，不是"你在访问哪个网站"。
+>
+> 所以：**工作账号、网银、支付、政务、公司内网**这类操作，不要放在低价机场上做。这不是"这家靠不靠谱"的问题，是这个价位模式下本来就不该托付这些事。
+>
+> **收录 ≠ 推荐 ≠ 安全背书**。本项目只做两件事：记录入口、记录入口现在还能不能打开。
+
 **可搜索的网页版：**
 
 | 入口 | 地址 | 说明 |
@@ -19,14 +27,6 @@
 1. 看下面表格的「状态」列，优先选 ✅ 存活的；⚠️受限的先当"可能已经停售"处理；
 2. 点「名称」进官网，**先买最小周期**（试用/月付）验证速度和稳定性，满意再考虑长周期；
 3. 担心域名被封？点「备用」列——多数机场有官方地址发布页或备用域名。
-
-> ### ⚠️ 先把这件事想清楚：低价机场能看到什么
->
-> 机场是你的出口，理论上能看到你访问的**域名、时间、流量大小**，部分实现还能看到 DNS 请求和设备特征。HTTPS 保护的是内容，不是"你在访问哪个网站"。
->
-> 所以：**工作账号、网银、支付、政务、公司内网**这类操作，不要放在低价机场上做。这不是"这家靠不靠谱"的问题，是这个价位模式下本来就不该托付这些事。
->
-> 收录 ≠ 推荐，也不构成安全背书。本项目只做两件事：记录入口、记录入口现在还能不能打开。
 
 ## 低价机场速查表（月付 ≤10 元）
 
@@ -66,20 +66,20 @@
 
 ## 客户端与工具速查
 
-> 💡 **新手推荐**：Windows 用 Clash Verge Rev，iOS 用 Shadowrocket，Android 用 ClashMetaForAndroid。
+> 💡 **新手直接抄作业**：Windows → Clash Verge Rev；iOS → Shadowrocket；Android → ClashMetaForAndroid。其余按「适合」列对号入座。
 
-| 名称 | 推荐指数 | 适合人群 | 平台 | 说明 |
+| 名称 | 推荐 | 适合 | 平台 | 说明 |
 |---|---|---|---|---|
 | [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) | ⭐⭐⭐⭐⭐ | 新手首选 | Windows / macOS / Linux | 目前最主流的 Clash 图形客户端，订阅管理、规则、界面都成熟 |
 | [v2rayN](https://github.com/2dust/v2rayN) | ⭐⭐⭐⭐ | Windows 老用户 | Windows | 老牌 Windows 客户端，支持 Xray / sing-box 多内核 |
-| [Shadowrocket（小火箭）](https://apps.apple.com/app/shadowrocket/id932747118) | ⭐⭐⭐⭐⭐ | iOS 用户必选 | iOS | iOS 端经典客户端，App Store 付费购买（约 $3） |
+| [FlClash](https://github.com/chen08209/FlClash) | ⭐⭐⭐⭐ | 追求新界面 | Windows / macOS / Linux / Android | 全平台开源 Clash 客户端，界面现代 |
 | [ClashMetaForAndroid](https://github.com/MetaCubeX/ClashMetaForAndroid) | ⭐⭐⭐⭐⭐ | Android 用户 | Android | MetaCubeX 官方安卓客户端 |
-| [FlClash](https://github.com/chen08209/FlClash) | ⭐⭐⭐⭐ | 追求新界面 | 全平台 | 全平台开源 Clash 客户端，界面现代 |
-| [Hiddify](https://github.com/hiddify/hiddify-app) | ⭐⭐⭐⭐ | 极简用户 | 全平台 | 对新手友好的一站式客户端，粘贴订阅即可用 |
-| [Karing](https://github.com/KaringX/karing) | ⭐⭐⭐⭐ | 进阶用户 | 全平台 | sing-box 系多合一客户端，中文圈常用 |
 | [sing-box](https://github.com/SagerNet/sing-box) | ⭐⭐⭐ | 开发者 | 全平台（内核） | 新兴通用代理内核，大量新客户端基于它开发 |
-| [subconverter](https://github.com/tindy2013/subconverter) | ⭐⭐⭐ | 高级用户 | 自部署服务 | 老牌订阅格式转换后端（17k+ Star），把各家机场订阅互转为 Clash/sing-box 等格式 |
-| [Sub-Store](https://github.com/sub-store-org/Sub-Store) | ⭐⭐⭐⭐ | 多订阅管理 | 全平台 | 订阅全功能管理工具（10k+ Star）：转换、过滤、重命名、合并、脚本处理 |
+| [Hiddify](https://github.com/hiddify/hiddify-app) | ⭐⭐⭐⭐ | 极简用户 | Windows / macOS / Linux / Android / iOS | 对新手友好的一站式客户端，粘贴订阅即可用 |
+| [Karing](https://github.com/KaringX/karing) | ⭐⭐⭐⭐ | 进阶用户 | 全平台 | sing-box 系多合一客户端，中文圈常用 |
+| [Shadowrocket（小火箭）](https://apps.apple.com/app/shadowrocket/id932747118) | ⭐⭐⭐⭐⭐ | iOS 用户必选 | iOS | iOS 端经典客户端，App Store 付费购买 |
+| [subconverter](https://github.com/tindy2013/subconverter) | ⭐⭐⭐ | 高级用户 | 自部署服务/内核 | 老牌订阅格式转换后端（17k+ Star），把各家机场订阅互转为 Clash/sing-box 等格式，可自部署 |
+| [Sub-Store](https://github.com/sub-store-org/Sub-Store) | ⭐⭐⭐⭐ | 多订阅管理 | 全平台（前端 + 后端） | 订阅全功能管理工具（10k+ Star，活跃维护）：转换、过滤、重命名、合并、脚本处理 |
 
 > 各客户端的**官方下载直链**（按电脑架构自动选版本，47 款 AI 与网络工具每周体检）见姊妹项目 **[agent-download](https://github.com/yanwaiyue-name/agent-download)**。
 
