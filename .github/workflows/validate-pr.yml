@@ -1,0 +1,39 @@
+name: validate-pr
+
+# 对标 public-apis：每个改数据的 PR 都先跑校验，
+# 并要求 README.md / docs/data.js 已经用 scripts/render.ps1 重新生成。
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'scripts/**'
+      - '.github/workflows/validate-pr.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: 数据与脚本预检
+        shell: pwsh
+        run: ./scripts/validate.ps1
+
+      - name: 重新渲染 README 与网页数据
+        shell: pwsh
+        run: ./scripts/render.ps1
+
+      - name: 检查生成物是否已提交
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain README.md docs/data.js)" ]; then
+            git --no-pager diff -- README.md docs/data.js | head -100
+            echo "::error::README.md / docs/data.js 未同步。请在本地运行 ./scripts/render.ps1 并提交生成结果。"
+            exit 1
+          fi
+          echo "生成物已同步"

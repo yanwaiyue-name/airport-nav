@@ -81,6 +81,8 @@ $today = if ($sorted.Count -gt 0 -and $sorted[0].last_checked) { [string]$sorted
 # 口径统一走 scripts/lib-status.ps1，避免"徽章一套、计数另一套"。
 $okCount         = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'ok' }).Count
 $restrictedCount = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'restricted' }).Count
+$unknownCount    = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'unknown' }).Count
+$deadCount       = @($sorted | Where-Object { (Get-EffectiveStatus ([string]$_.status) $_.http_code) -eq 'dead' }).Count
 
 function Badge([string]$s, $code) {
     # 判定逻辑在 lib-status.ps1，这里只负责画。
@@ -149,12 +151,12 @@ $resTable = $resRows -join "`n"
 $template = @'
 # airport-nav · 机场导航
 
-> 📍 **本仓库是 GitHub 的镜像。** 每周体检与页面部署只在 GitHub Actions 运行，
-> 因此**下面表格的「最后验证」日期在镜像上不会自动更新**。
+> 📍 **本仓库同步自上游主仓库。** 每周体检与页面部署只在 GitHub Actions 运行，
+> 因此**其他镜像上的「最后验证」日期不会自动更新**。
 
 > 低价机场 / 客户端速查 / 新手避坑，一站式导航。**每周自动体检，优先列出能打开的入口；确认失效的保留 ❌ 标记不删，方便你判断它有没有复活。**
 
-共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家正常响应、**{RESTRICTEDCOUNT}** 家受限（403/防护页）（{TODAY}）。
+共收录 **{LOWCOUNT}** 家低价机场 + **{MIDCOUNT}** 家性价比机场，最近一次体检 **{OKCOUNT}** 家正常响应、**{RESTRICTEDCOUNT}** 家受限（403/防护页）、**{UNKNOWNCOUNT}** 家未验证、**{DEADCOUNT}** 家失效（{TODAY}）。
 
 ## ⚠️ 使用前必读：低价机场能看到什么
 
@@ -251,7 +253,7 @@ $template = @'
 - 请遵守你所在地区的法律法规。
 '@
 
-$md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{RESTRICTEDCOUNT}', "$restrictedCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
+$md = $template.Replace('{LOWCOUNT}', "$($low.Count)").Replace('{MIDCOUNT}', "$($mid.Count)").Replace('{OKCOUNT}', "$okCount").Replace('{RESTRICTEDCOUNT}', "$restrictedCount").Replace('{UNKNOWNCOUNT}', "$unknownCount").Replace('{DEADCOUNT}', "$deadCount").Replace('{TODAY}', $today).Replace('{LOWTABLE}', $lowTable).Replace('{MIDTABLE}', $midTable).Replace('{TOOLTABLE}', $toolTable).Replace('{RESTABLE}', $resTable)
 
 # 输出统一成 LF。
 # 拼出来的是「文件中 here-string 模板自带的换行（Windows 签出后是 CRLF）＋ 脚本用 $NL 拼的行（LF）」，
