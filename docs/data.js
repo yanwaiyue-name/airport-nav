@@ -1,5 +1,5 @@
 window.NAV_DATA = {
-  "generated": "2026-11-03",
+  "generated": "2026-11-04",
   "airports": [
     {
       "tier": "低价",
@@ -17,7 +17,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://666.subef.top/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -41,7 +41,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://edu.360buyimg.men/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -64,7 +64,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://smjcdh.com/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -85,9 +85,30 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://xn--tfrza853d44tvst.xyz/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
+      "effective_status": "ok"
+    },
+    {
+      "tier": "低价",
+      "name": "星河云",
+      "entry_url": "https://svip.xingheyun.lol",
+      "backup_domains": [],
+      "price": "1元/16G/月",
+      "traffic": "16G/月",
+      "line": "中转",
+      "protocols": [
+        "未知"
+      ],
+      "notes": "小流量低价档，适合轻度使用。⚠️ 2026-10-26 实测：入口 svip.xingheyun.lol 现跳转到 app.zhizi8.com，落地页品牌为「反质子」，页面内无「星河云」字样，疑为换牌/转卖，购买前务必在站内确认品牌，不要再当作星河云直营。",
+      "source": "kamibababa/cheapairport",
+      "status": "ok",
+      "http_code": 200,
+      "final_url": "https://app.zhizi8.com/",
+      "last_checked": "2026-11-04",
+      "checked_from": "github-actions",
+      "reachable_via": "direct",
       "effective_status": "ok"
     },
     {
@@ -106,7 +127,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 301,
       "final_url": "https://vip.taoqitu.pro/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -129,7 +150,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://666.66jc.top/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -150,7 +171,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://mly518.com/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
       "effective_status": "ok"
@@ -171,7 +192,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://xn--9kqz23b19z.com/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
       "effective_status": "ok"
@@ -192,7 +213,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://301.xn--h5qy75o.vip/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -216,7 +237,7 @@ window.NAV_DATA = {
       "status": "restricted",
       "http_code": 403,
       "final_url": "https://xn--1-q07a56pdss.org/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "restricted"
@@ -237,7 +258,7 @@ window.NAV_DATA = {
       "status": "restricted",
       "http_code": 403,
       "final_url": "https://xn--4gqx1hgtfdmt.com/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
       "effective_status": "restricted"
@@ -258,31 +279,10 @@ window.NAV_DATA = {
       "status": "restricted",
       "http_code": 403,
       "final_url": "https://xn--9kqs1lo79d.com/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "restricted"
-    },
-    {
-      "tier": "低价",
-      "name": "星河云",
-      "entry_url": "https://svip.xingheyun.lol",
-      "backup_domains": [],
-      "price": "1元/16G/月",
-      "traffic": "16G/月",
-      "line": "中转",
-      "protocols": [
-        "未知"
-      ],
-      "notes": "小流量低价档，适合轻度使用。⚠️ 2026-10-26 实测：入口 svip.xingheyun.lol 现跳转到 app.zhizi8.com，落地页品牌为「反质子」，页面内无「星河云」字样，疑为换牌/转卖，购买前务必在站内确认品牌，不要再当作星河云直营。",
-      "source": "kamibababa/cheapairport",
-      "status": "unknown",
-      "http_code": 0,
-      "final_url": null,
-      "last_checked": "2026-11-03",
-      "checked_from": "github-actions",
-      "reachable_via": "direct",
-      "effective_status": "unknown"
     },
     {
       "tier": "低价",
@@ -300,7 +300,7 @@ window.NAV_DATA = {
       "status": "dead",
       "http_code": 0,
       "final_url": null,
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "effective_status": "dead"
     },
@@ -320,7 +320,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://www.z1z1.xyz/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -341,7 +341,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://www.xn--qprx60h.site/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
       "effective_status": "ok"
@@ -364,7 +364,7 @@ window.NAV_DATA = {
       "status": "ok",
       "http_code": 200,
       "final_url": "https://a22.qytaff01.cc/verify?next=%2F",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "direct",
       "effective_status": "ok"
@@ -387,7 +387,7 @@ window.NAV_DATA = {
       "status": "restricted",
       "http_code": 403,
       "final_url": "https://ktmcloud.vip/",
-      "last_checked": "2026-11-03",
+      "last_checked": "2026-11-04",
       "checked_from": "github-actions",
       "reachable_via": "proxy",
       "effective_status": "restricted"
